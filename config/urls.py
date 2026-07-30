@@ -15,6 +15,8 @@ admin.site.index_title = "Academic Operations & Database Management Hub"
 urlpatterns = [
     path('admin/', admin.site.urls),
 
+    path('accounts/', include('allauth.urls')),
+
 
     # Web App URL Routing
     path('', include('accounts.urls')),
