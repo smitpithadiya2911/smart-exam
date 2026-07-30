@@ -1,0 +1,1392 @@
+/* ==========================================================================
+   Cyberpunk + Glassmorphism + Neon Design System
+   Color Tokens:
+     --bg-primary: #04060F (Deep Cyber Void)
+     --bg-secondary: #091322 (Midnight Cyan Glow)
+     --color-blue: #00A8FF
+     --color-electric: #3EA6FF
+     --color-purple: #7B3FFB
+     --color-cyan: #00F5FF
+     --text-primary: #FFFFFF
+     --text-muted: #B8C0D4
+     --glass-blur: 25px
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap');
+
+:root {
+  /* Cyber Dark Theme Tokens (Default) */
+  --bg-primary: #04060F;
+  --bg-secondary: #091322;
+
+  --color-primary: #00A8FF;
+  --color-primary-light: #3EA6FF;
+  --color-accent: #00F5FF;
+  --color-purple: #7B3FFB;
+
+  --color-accent-glow: rgba(0, 245, 255, 0.35);
+  --color-purple-glow: rgba(123, 63, 251, 0.35);
+
+  --color-success: #00FF9D;
+  --color-warning: #FFB800;
+  --color-danger: #FF0055;
+
+  --text-main: #FFFFFF;
+  --text-muted: #B8C0D4;
+
+  --glass-bg: rgba(255, 255, 255, 0.04);
+  --glass-bg-hover: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-neon: rgba(0, 245, 255, 0.3);
+  --glass-shadow: 0 16px 40px 0 rgba(0, 0, 0, 0.7), inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+
+  --sidebar-bg: rgba(4, 6, 15, 0.85);
+  --card-border: rgba(0, 245, 255, 0.15);
+}
+
+[data-theme="light"] {
+  /* Light Modern Glass Theme Tokens */
+  --bg-primary: #F8FAFC;
+  --bg-secondary: #FFFFFF;
+
+  --color-primary: #0284C7;
+  --color-primary-light: #38BDF8;
+  --color-accent: #0284C7;
+  --color-purple: #6366F1;
+
+  --color-accent-glow: rgba(2, 132, 199, 0.25);
+  --color-purple-glow: rgba(99, 102, 241, 0.25);
+
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-danger: #E11D48;
+
+  --text-main: #0F172A;
+  --text-muted: #475569;
+
+  --glass-bg: rgba(255, 255, 255, 0.88);
+  --glass-bg-hover: rgba(255, 255, 255, 0.95);
+  --glass-border: rgba(226, 232, 240, 0.8);
+  --glass-border-neon: rgba(2, 132, 199, 0.4);
+  --glass-shadow: 0 10px 30px 0 rgba(15, 23, 42, 0.06), 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+
+  --sidebar-bg: rgba(255, 255, 255, 0.95);
+  --card-border: rgba(2, 132, 199, 0.2);
+}
+
+[data-theme="light"] body {
+  background-color: #F8FAFC !important;
+  background-image:
+    radial-gradient(circle at 15% 15%, rgba(2, 132, 199, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 85% 85%, rgba(99, 102, 241, 0.08) 0%, transparent 45%),
+    linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%) !important;
+  color: #0F172A !important;
+}
+
+[data-theme="light"] .glass-card {
+  background: rgba(255, 255, 255, 0.88) !important;
+  border-color: rgba(226, 232, 240, 0.9) !important;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06) !important;
+  color: #0F172A !important;
+}
+
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3,
+[data-theme="light"] h4,
+[data-theme="light"] h5,
+[data-theme="light"] h6,
+[data-theme="light"] .text-white,
+[data-theme="light"] .fw-bold {
+  color: #0F172A !important;
+}
+
+[data-theme="light"] .text-muted {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .app-sidebar {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-right-color: rgba(226, 232, 240, 0.9) !important;
+}
+
+[data-theme="light"] .nav-link-glass {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .nav-link-glass:hover {
+  background: rgba(2, 132, 199, 0.08) !important;
+  color: #0284C7 !important;
+}
+
+[data-theme="light"] .nav-link-glass.active {
+  background: linear-gradient(90deg, rgba(2, 132, 199, 0.15) 0%, rgba(99, 102, 241, 0.1) 100%) !important;
+  color: #0284C7 !important;
+  border-left-color: #0284C7 !important;
+}
+
+[data-theme="light"] table.table,
+[data-theme="light"] .table-glass {
+  --bs-table-bg: transparent !important;
+  --bs-table-color: #0F172A !important;
+  --bs-table-hover-bg: rgba(2, 132, 199, 0.05) !important;
+  --bs-table-hover-color: #0F172A !important;
+  color: #0F172A !important;
+}
+
+[data-theme="light"] table.table th,
+[data-theme="light"] .table-glass th {
+  background: rgba(241, 245, 249, 0.95) !important;
+  color: #0284C7 !important;
+  border-bottom: 2px solid rgba(2, 132, 199, 0.3) !important;
+}
+
+[data-theme="light"] table.table td,
+[data-theme="light"] .table-glass td {
+  color: #1E293B !important;
+  border-bottom-color: rgba(226, 232, 240, 0.8) !important;
+}
+
+[data-theme="light"] code,
+[data-theme="light"] .code-badge {
+  background: rgba(2, 132, 199, 0.1) !important;
+  color: #0284C7 !important;
+  border-color: rgba(2, 132, 199, 0.3) !important;
+}
+
+[data-theme="light"] .btn-glass-primary {
+  background: linear-gradient(135deg, #0284C7 0%, #6366F1 100%) !important;
+  color: #FFFFFF !important;
+  border-color: rgba(2, 132, 199, 0.4) !important;
+  box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3) !important;
+}
+
+[data-theme="light"] .btn-action-edit {
+  background: rgba(2, 132, 199, 0.1) !important;
+  color: #0284C7 !important;
+  border-color: rgba(2, 132, 199, 0.3) !important;
+}
+
+[data-theme="light"] .btn-action-delete {
+  background: rgba(225, 29, 72, 0.1) !important;
+  color: #E11D48 !important;
+  border-color: rgba(225, 29, 72, 0.3) !important;
+}
+
+[data-theme="light"] .btn-action-view {
+  background: rgba(124, 58, 237, 0.1) !important;
+  color: #7C3AED !important;
+  border-color: rgba(124, 58, 237, 0.3) !important;
+}
+
+[data-theme="light"] .glass-input,
+[data-theme="light"] .form-select,
+[data-theme="light"] select {
+  background: #FFFFFF !important;
+  color: #0F172A !important;
+  border-color: #CBD5E1 !important;
+}
+
+[data-theme="light"] select option {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+}
+
+
+* {
+  box-sizing: border-box;
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.text-muted {
+  color: #CBD5E1 !important;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: var(--bg-primary);
+  background-image:
+    radial-gradient(circle at 15% 15%, rgba(0, 245, 255, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 85% 85%, rgba(123, 63, 251, 0.12) 0%, transparent 45%),
+    linear-gradient(180deg, #04060F 0%, #091322 100%);
+  background-attachment: fixed;
+  color: var(--text-main);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Futuristic Headings & Cyber Typography */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.font-heading,
+.cyber-title {
+  font-family: 'Orbitron', 'Poppins', sans-serif;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: 0.5px;
+}
+
+.cyber-subtitle,
+.font-mono {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.gradient-text-cyan {
+  background: linear-gradient(135deg, #FFFFFF 0%, #00F5FF 50%, #3EA6FF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gradient-text-purple {
+  background: linear-gradient(135deg, #FFFFFF 0%, #00F5FF 40%, #7B3FFB 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Dynamic Animated Cyber Title Gradient */
+.animated-cyber-gradient {
+  background: linear-gradient(120deg,
+      #FFFFFF 0%,
+      #00F5FF 25%,
+      #3EA6FF 50%,
+      #7B3FFB 75%,
+      #00FF9D 100%);
+  background-size: 250% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: cyber-gradient-shift 5s ease-in-out infinite;
+  filter: drop-shadow(0 0 12px rgba(0, 245, 255, 0.4));
+}
+
+@keyframes cyber-gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* High Contrast Bright Lead Paragraph Text */
+.cyber-lead-text {
+  color: #E2E8F0 !important;
+  font-size: 1.15rem;
+  line-height: 1.7;
+  font-weight: 400;
+  text-shadow: 0 0 10px rgba(0, 245, 255, 0.15);
+  opacity: 0.95;
+}
+
+/* ==========================================================================
+   Full Screen Canvas Particles Background
+   ========================================================================== */
+#cyber-particle-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+}
+
+#hero-3d-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   Cyber Page Loader
+   ========================================================================== */
+#cyber-page-loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #04060F;
+  backdrop-filter: blur(25px);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+#cyber-page-loader.fade-out {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.cyber-spinner {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 3px solid rgba(0, 245, 255, 0.1);
+  border-top-color: var(--color-cyan);
+  border-bottom-color: var(--color-purple);
+  animation: cyber-spin 1s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+  box-shadow: 0 0 25px rgba(0, 245, 255, 0.5), inset 0 0 15px rgba(123, 63, 251, 0.4);
+}
+
+@keyframes cyber-spin {
+  0% {
+    transform: rotate(0deg) scale(0.95);
+  }
+
+  50% {
+    transform: rotate(180deg) scale(1.05);
+  }
+
+  100% {
+    transform: rotate(360deg) scale(0.95);
+  }
+}
+
+/* ==========================================================================
+   Glassmorphism Cards with Spotlight Glow & Neon Borders
+   ========================================================================== */
+.glass-card {
+  position: relative;
+  background: var(--glass-bg);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: 20px;
+  padding: 24px;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      rgba(0, 245, 255, 0.08),
+      transparent 40%);
+  pointer-events: none;
+  border-radius: 20px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.glass-card:hover {
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-neon);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.8), 0 0 25px var(--color-accent-glow), 0 0 45px var(--color-purple-glow);
+}
+
+.glass-card:hover::before {
+  opacity: 1;
+}
+
+/* Neon Glass Inputs & Cyber Select Dropdowns */
+.glass-input,
+.form-select,
+select {
+  background: rgba(9, 19, 34, 0.85) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 245, 255, 0.25) !important;
+  color: var(--text-main) !important;
+  border-radius: 12px !important;
+  padding: 12px 18px !important;
+  font-size: 0.95rem;
+  font-family: 'Inter', 'Rajdhani', sans-serif !important;
+  transition: all 0.25s ease !important;
+}
+
+select.form-select,
+select.glass-input,
+select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2300F5FF' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+  background-size: 16px 12px !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  cursor: pointer !important;
+}
+
+.glass-input::placeholder {
+  color: rgba(184, 192, 212, 0.5) !important;
+}
+
+.glass-input:focus,
+.form-select:focus,
+select:focus {
+  background: rgba(9, 19, 34, 0.95) !important;
+  border-color: var(--color-cyan) !important;
+  box-shadow: 0 0 20px var(--color-accent-glow), inset 0 0 10px rgba(0, 245, 255, 0.15) !important;
+  outline: none !important;
+}
+
+/* Custom Cyber Option Popup Menu Styling */
+select option,
+.form-select option {
+  background-color: #091322 !important;
+  color: #FFFFFF !important;
+  font-family: 'Rajdhani', 'Inter', sans-serif !important;
+  font-size: 0.98rem !important;
+  padding: 12px 16px !important;
+  border-bottom: 1px solid rgba(0, 245, 255, 0.1) !important;
+}
+
+select option:hover,
+select option:focus,
+select option:active,
+select option:checked,
+.form-select option:checked {
+  background: linear-gradient(90deg, #00A8FF 0%, #7B3FFB 100%) !important;
+  background-color: #00A8FF !important;
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+  box-shadow: inset 0 0 10px rgba(0, 245, 255, 0.5) !important;
+}
+
+/* ==========================================================================
+   Global Dropdown Menus & Items for Cyber/Glass Themes
+   ========================================================================== */
+.dropdown-menu {
+  background: rgba(9, 19, 34, 0.95) !important;
+  backdrop-filter: blur(15px) !important;
+  -webkit-backdrop-filter: blur(15px) !important;
+  border: 1px solid rgba(0, 245, 255, 0.2) !important;
+  border-radius: 12px !important;
+  padding: 8px 0 !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 245, 255, 0.1) !important;
+  z-index: 1050 !important;
+}
+
+.dropdown-item {
+  color: var(--text-main, #FFFFFF) !important;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.925rem;
+  padding: 10px 20px !important;
+  transition: all 0.2s ease;
+  background-color: transparent !important;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  background: rgba(0, 245, 255, 0.15) !important;
+  color: var(--color-accent, #00F5FF) !important;
+  padding-left: 24px !important;
+}
+
+.dropdown-item i {
+  transition: transform 0.2s ease;
+}
+
+.dropdown-item:hover i {
+  transform: scale(1.1);
+}
+
+/* Light Theme Support */
+[data-theme="light"] .dropdown-menu {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(2, 132, 199, 0.2) !important;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08) !important;
+}
+
+[data-theme="light"] .dropdown-item {
+  color: #0F172A !important;
+}
+
+[data-theme="light"] .dropdown-item:hover,
+[data-theme="light"] .dropdown-item:focus {
+  background: rgba(2, 132, 199, 0.08) !important;
+  color: #0284C7 !important;
+}
+
+/* ==========================================================================
+   Cyber Neon Buttons & Ripples
+   ========================================================================== */
+.btn-glass-primary,
+.btn-cyber-neon {
+  position: relative;
+  background: linear-gradient(135deg, #00A8FF 0%, #7B3FFB 100%);
+  color: #FFFFFF !important;
+  border: 1px solid rgba(0, 245, 255, 0.4);
+  border-radius: 12px;
+  padding: 12px 28px;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 168, 255, 0.35);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.btn-glass-primary::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(60deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.3) 50%,
+      transparent 70%);
+  transform: rotate(30deg) translateY(-100%);
+  transition: transform 0.6s ease;
+}
+
+.btn-glass-primary:hover {
+  transform: translateY(-3px) scale(1.02);
+  border-color: var(--color-cyan);
+  box-shadow: 0 10px 30px rgba(0, 245, 255, 0.5), 0 0 20px rgba(123, 63, 251, 0.4);
+}
+
+.btn-glass-primary:hover::after {
+  transform: rotate(30deg) translateY(100%);
+}
+
+.btn-glass-success {
+  position: relative;
+  background: linear-gradient(135deg, #00FF9D 0%, #00B36B 100%);
+  color: #04060F !important;
+  border: 1px solid rgba(0, 255, 157, 0.4);
+  border-radius: 12px;
+  padding: 12px 28px;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 255, 157, 0.35);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.btn-glass-success::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(60deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.3) 50%,
+      transparent 70%);
+  transform: rotate(30deg) translateY(-100%);
+  transition: transform 0.6s ease;
+}
+
+.btn-glass-success:hover {
+  transform: translateY(-3px) scale(1.02);
+  border-color: #00FF9D;
+  box-shadow: 0 10px 30px rgba(0, 255, 157, 0.5), 0 0 20px rgba(0, 255, 157, 0.4);
+}
+
+.btn-glass-success:hover::after {
+  transform: rotate(30deg) translateY(100%);
+}
+
+/* Click Ripple Element */
+.cyber-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(0, 245, 255, 0.5);
+  transform: scale(0);
+  animation: cyber-ripple-anim 0.6s linear;
+  pointer-events: none;
+}
+
+@keyframes cyber-ripple-anim {
+  to {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   Question Palette Badges
+   ========================================================================== */
+.q-badge {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.25s ease;
+}
+
+.q-badge:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 15px var(--color-accent-glow);
+}
+
+.q-answered {
+  background: linear-gradient(135deg, #00FF9D 0%, #00B36B 100%);
+  color: #04060F;
+  border-color: #00FF9D;
+  box-shadow: 0 0 12px rgba(0, 255, 157, 0.4);
+}
+
+.q-unanswered {
+  background: linear-gradient(135deg, #FF0055 0%, #990033 100%);
+  color: #FFFFFF;
+  border-color: #FF0055;
+  box-shadow: 0 0 12px rgba(255, 0, 85, 0.4);
+}
+
+.q-review {
+  background: linear-gradient(135deg, #FFB800 0%, #CC9300 100%);
+  color: #04060F;
+  border-color: #FFB800;
+  box-shadow: 0 0 12px rgba(255, 184, 0, 0.4);
+}
+
+.q-not-visited {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   Sidebar Navigation & Standard Scrollbar System
+   ========================================================================== */
+.app-sidebar {
+  width: 270px;
+  min-width: 270px;
+  background: var(--sidebar-bg);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border-right: 1px solid var(--glass-border);
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 100;
+  direction: ltr;
+  /* Standard normal LTR sidebar navigation */
+  scroll-behavior: smooth;
+}
+
+/* Custom Cyberpunk Right-Side Scrollbar */
+.app-sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.app-sidebar::-webkit-scrollbar-track {
+  background: rgba(4, 6, 15, 0.6);
+}
+
+.app-sidebar::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #00F5FF 0%, #7B3FFB 100%);
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(0, 245, 255, 0.4);
+}
+
+.app-sidebar::-webkit-scrollbar-thumb:hover {
+  background: #00FF9D;
+  box-shadow: 0 0 15px rgba(0, 255, 157, 0.8);
+}
+
+.app-sidebar-content {
+  direction: ltr;
+  width: 100%;
+}
+
+
+/* Animated Navbar Link Glass Cards */
+.nav-link-glass {
+  position: relative;
+  color: #CBD5E1;
+  padding: 12px 18px;
+  border-radius: 14px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-decoration: none;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: 0.5px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  user-select: none;
+}
+
+.nav-link-glass i {
+  font-size: 1.25rem;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.3s ease;
+}
+
+.nav-link-glass::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--color-cyan);
+  box-shadow: 0 0 12px var(--color-cyan);
+  border-radius: 0 4px 4px 0;
+  opacity: 0;
+  transform: scaleY(0);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.nav-link-glass:hover {
+  background: linear-gradient(90deg, rgba(0, 245, 255, 0.12) 0%, rgba(123, 63, 251, 0.08) 100%);
+  color: #00F5FF;
+  transform: translateX(4px);
+  box-shadow: inset 0 0 15px rgba(0, 245, 255, 0.1);
+}
+
+.nav-link-glass:hover i {
+  transform: scale(1.25) rotate(6deg);
+  color: #00F5FF;
+  text-shadow: 0 0 12px #00F5FF;
+}
+
+.nav-link-glass.active {
+  background: linear-gradient(90deg, rgba(0, 245, 255, 0.2) 0%, rgba(123, 63, 251, 0.15) 100%) !important;
+  color: #00F5FF !important;
+  font-weight: 700;
+  box-shadow: inset 0 0 20px rgba(0, 245, 255, 0.2), 0 4px 15px rgba(0, 245, 255, 0.15) !important;
+  border-left: 3px solid #00F5FF !important;
+}
+
+.nav-link-glass.active i {
+  transform: scale(1.2) rotate(4deg);
+  color: #00F5FF !important;
+  filter: drop-shadow(0 0 8px #00F5FF);
+}
+
+.nav-link-glass.active::before {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+/* Navbar Click Ripple Pulse Ring */
+.cyber-nav-pulse {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 245, 255, 0.6) 0%, rgba(123, 63, 251, 0.4) 60%, transparent 100%);
+  transform: scale(0);
+  animation: cyber-nav-pulse-anim 0.5s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+  pointer-events: none;
+}
+
+@keyframes cyber-nav-pulse-anim {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(2.8);
+    opacity: 0;
+  }
+}
+
+
+.dark-toggle-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-main);
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.dark-toggle-btn:hover {
+  background: rgba(0, 245, 255, 0.15);
+  border-color: var(--color-cyan);
+  color: var(--color-cyan);
+  box-shadow: 0 0 15px var(--color-accent-glow);
+}
+
+/* ==========================================================================
+   KPI Cards & Administrative Dashboard Hubs
+   ========================================================================== */
+.admin-kpi-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 20px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(25px);
+  box-shadow: var(--glass-shadow);
+}
+
+.admin-kpi-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 25px var(--color-accent-glow);
+  border-color: var(--color-cyan);
+}
+
+.admin-kpi-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  background: rgba(0, 245, 255, 0.1);
+  border: 1px solid rgba(0, 245, 255, 0.2);
+  color: var(--color-cyan);
+  transition: transform 0.3s ease;
+}
+
+.admin-kpi-card:hover .admin-kpi-icon {
+  transform: scale(1.15) rotate(6deg);
+  background: rgba(0, 245, 255, 0.2);
+  box-shadow: 0 0 20px var(--color-accent-glow);
+}
+
+.quick-hub-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(25px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 20px;
+  text-decoration: none;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  transition: all 0.3s ease;
+}
+
+.quick-hub-card:hover {
+  background: var(--glass-bg-hover);
+  border-color: var(--color-cyan);
+  transform: translateY(-4px);
+  color: var(--color-cyan);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px var(--color-accent-glow);
+}
+
+/* ==========================================================================
+/* ==========================================================================
+   Cyber Tables & Code Pill Badges Design System
+   ========================================================================== */
+code,
+.code-badge {
+  background: rgba(0, 245, 255, 0.1) !important;
+  color: #00F5FF !important;
+  border: 1px solid rgba(0, 245, 255, 0.35) !important;
+  border-radius: 8px !important;
+  padding: 4px 12px !important;
+  font-family: 'Rajdhani', 'Consolas', monospace !important;
+  font-weight: 700 !important;
+  font-size: 0.88rem !important;
+  letter-spacing: 0.8px !important;
+  box-shadow: 0 0 12px rgba(0, 245, 255, 0.15) !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+code.code-purple,
+.code-badge-purple {
+  background: rgba(123, 63, 251, 0.15) !important;
+  color: #B993FF !important;
+  border-color: rgba(123, 63, 251, 0.4) !important;
+  box-shadow: 0 0 12px rgba(123, 63, 251, 0.2) !important;
+}
+
+code.code-emerald,
+.code-badge-emerald {
+  background: rgba(0, 255, 157, 0.12) !important;
+  color: #00FF9D !important;
+  border-color: rgba(0, 255, 157, 0.35) !important;
+  box-shadow: 0 0 12px rgba(0, 255, 157, 0.2) !important;
+}
+
+code.code-amber,
+.code-badge-amber {
+  background: rgba(255, 184, 0, 0.12) !important;
+  color: #FFC72C !important;
+  border-color: rgba(255, 184, 0, 0.35) !important;
+  box-shadow: 0 0 12px rgba(255, 184, 0, 0.2) !important;
+}
+
+code.code-rose,
+.code-badge-rose {
+  background: rgba(255, 0, 85, 0.12) !important;
+  color: #FF3377 !important;
+  border-color: rgba(255, 0, 85, 0.35) !important;
+  box-shadow: 0 0 12px rgba(255, 0, 85, 0.2) !important;
+}
+
+/* Global Table & Cyber Table Glass Overrides */
+table.table,
+.table-glass {
+  --bs-table-bg: transparent !important;
+  --bs-table-color: #F8FAFC !important;
+  --bs-table-hover-bg: rgba(0, 245, 255, 0.06) !important;
+  --bs-table-hover-color: #FFFFFF !important;
+  color: #F8FAFC !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  margin-bottom: 0 !important;
+}
+
+table.table th,
+.table-glass th {
+  font-family: 'Orbitron', 'Rajdhani', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 0.82rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1.2px !important;
+  color: #00F5FF !important;
+  border-bottom: 2px solid rgba(0, 245, 255, 0.3) !important;
+  padding: 16px 20px !important;
+  background: rgba(9, 19, 34, 0.85) !important;
+  backdrop-filter: blur(10px);
+}
+
+table.table td,
+.table-glass td {
+  padding: 16px 20px !important;
+  vertical-align: middle !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+  background: rgba(255, 255, 255, 0.015);
+  color: #E2E8F0 !important;
+  font-size: 0.94rem;
+}
+
+table.table tbody tr:hover td,
+.table-glass tbody tr:hover td {
+  background: rgba(0, 245, 255, 0.07) !important;
+  border-color: rgba(0, 245, 255, 0.3) !important;
+  color: #FFFFFF !important;
+}
+
+/* Modern Cyber Action Buttons */
+.btn-action-edit,
+.btn-action-delete,
+.btn-action-view,
+.btn-action-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 0.88rem;
+  letter-spacing: 0.5px;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.btn-action-edit {
+  background: rgba(0, 168, 255, 0.12) !important;
+  color: #00F5FF !important;
+  border: 1px solid rgba(0, 245, 255, 0.35) !important;
+}
+
+.btn-action-edit:hover {
+  background: rgba(0, 245, 255, 0.25) !important;
+  color: #FFFFFF !important;
+  border-color: #00F5FF !important;
+  box-shadow: 0 0 15px rgba(0, 245, 255, 0.4);
+  transform: translateY(-2px) scale(1.04);
+}
+
+.btn-action-delete {
+  background: rgba(255, 0, 85, 0.12) !important;
+  color: #FF3377 !important;
+  border: 1px solid rgba(255, 0, 85, 0.35) !important;
+}
+
+.btn-action-delete:hover {
+  background: rgba(255, 0, 85, 0.28) !important;
+  color: #FFFFFF !important;
+  border-color: #FF0055 !important;
+  box-shadow: 0 0 15px rgba(255, 0, 85, 0.4);
+  transform: translateY(-2px) scale(1.04);
+}
+
+.btn-action-view {
+  background: rgba(123, 63, 251, 0.15) !important;
+  color: #B993FF !important;
+  border: 1px solid rgba(123, 63, 251, 0.4) !important;
+}
+
+.btn-action-view:hover {
+  background: rgba(123, 63, 251, 0.3) !important;
+  color: #FFFFFF !important;
+  border-color: #7B3FFB !important;
+  box-shadow: 0 0 15px rgba(123, 63, 251, 0.5);
+  transform: translateY(-2px) scale(1.04);
+}
+
+.btn-action-icon {
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+/* Glass Badges High Contrast System */
+.badge.bg-primary-subtle,
+.badge.bg-info-subtle {
+  background: rgba(0, 245, 255, 0.12) !important;
+  color: #00F5FF !important;
+  border: 1px solid rgba(0, 245, 255, 0.3) !important;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+
+.badge.bg-success-subtle {
+  background: rgba(0, 255, 157, 0.12) !important;
+  color: #00FF9D !important;
+  border: 1px solid rgba(0, 255, 157, 0.3) !important;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+
+.badge.bg-warning-subtle {
+  background: rgba(255, 184, 0, 0.12) !important;
+  color: #FFC72C !important;
+  border: 1px solid rgba(255, 184, 0, 0.3) !important;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+
+.badge.bg-danger-subtle {
+  background: rgba(255, 0, 85, 0.12) !important;
+  color: #FF3377 !important;
+  border: 1px solid rgba(255, 0, 85, 0.3) !important;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+
+.badge.bg-secondary-subtle {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #CBD5E1 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+
+/* Glass Card & Bootstrap Dark Overrides */
+.bg-body-tertiary,
+.bg-light {
+  background: rgba(9, 19, 34, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #F8FAFC !important;
+}
+
+.text-dark {
+  color: #F8FAFC !important;
+}
+
+.progress-bar-glass {
+  height: 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.progress-bar-glass .bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #00A8FF 0%, #00F5FF 50%, #00FF9D 100%);
+  box-shadow: 0 0 12px rgba(0, 245, 255, 0.6);
+  transition: width 0.8s ease-in-out;
+}
+
+/* Watermark Overlay */
+.watermark-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.watermark-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-25deg);
+  font-size: 2.8rem;
+  font-weight: 800;
+  font-family: 'Orbitron', sans-serif;
+  color: rgba(0, 245, 255, 0.04);
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+/* Custom Cyber Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #04060F;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #00A8FF 0%, #7B3FFB 100%);
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(0, 245, 255, 0.5);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-cyan);
+}
+
+/* ==========================================================================
+   Cyberpunk Glassmorphic Side Toast Notifications System
+   ========================================================================== */
+.toast-cyber {
+  background: rgba(9, 19, 34, 0.92) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-radius: 16px !important;
+  padding: 14px 20px !important;
+  min-width: 320px;
+  max-width: 420px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6) !important;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 12px;
+  color: #FFFFFF !important;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.toast-cyber.toast-info,
+.toast-cyber.toast-success {
+  border: 1px solid rgba(0, 245, 255, 0.5) !important;
+  box-shadow: 0 8px 30px rgba(0, 245, 255, 0.25), inset 0 0 15px rgba(0, 245, 255, 0.1) !important;
+}
+
+.toast-cyber.toast-error,
+.toast-cyber.toast-danger {
+  border: 1px solid rgba(255, 0, 85, 0.6) !important;
+  box-shadow: 0 8px 30px rgba(255, 0, 85, 0.25), inset 0 0 15px rgba(255, 0, 85, 0.1) !important;
+}
+
+.toast-cyber.toast-warning {
+  border: 1px solid rgba(255, 184, 0, 0.6) !important;
+  box-shadow: 0 8px 30px rgba(255, 184, 0, 0.25), inset 0 0 15px rgba(255, 184, 0, 0.1) !important;
+}
+
+/* 3-Second Auto-Dismiss Animated Progress Bar */
+.toast-cyber-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  border-radius: 0 0 16px 16px;
+  animation: cyber-toast-shrink 3s linear forwards;
+}
+
+.toast-cyber.toast-info .toast-cyber-progress,
+.toast-cyber.toast-success .toast-cyber-progress {
+  background: linear-gradient(90deg, #00A8FF 0%, #00F5FF 50%, #00FF9D 100%);
+  box-shadow: 0 0 10px #00F5FF;
+}
+
+.toast-cyber.toast-error .toast-cyber-progress,
+.toast-cyber.toast-danger .toast-cyber-progress {
+  background: linear-gradient(90deg, #FF0055 0%, #FF3377 100%);
+  box-shadow: 0 0 10px #FF0055;
+}
+
+.toast-cyber.toast-warning .toast-cyber-progress {
+  background: linear-gradient(90deg, #FFB800 0%, #FFC72C 100%);
+  box-shadow: 0 0 10px #FFB800;
+}
+
+@keyframes cyber-toast-shrink {
+  0% {
+    width: 100%;
+  }
+
+  100% {
+    width: 0%;
+  }
+}
+
+/* ==========================================================================
+   Sidebar Bottom Logout & User Profile Card System
+   ========================================================================== */
+.sidebar-logout-card {
+  background: rgba(9, 19, 34, 0.92) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(0, 245, 255, 0.22) !important;
+  border-radius: 14px !important;
+  padding: 12px !important;
+  margin-top: auto;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(0, 245, 255, 0.05) !important;
+  transition: all 0.3s ease !important;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  width: 100%;
+}
+
+[data-theme="light"] .sidebar-logout-card {
+  background: rgba(255, 255, 255, 0.94) !important;
+  border-color: rgba(226, 232, 240, 0.9) !important;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06) !important;
+}
+
+.sidebar-logout-card:hover {
+  border-color: rgba(0, 245, 255, 0.45) !important;
+  box-shadow: 0 10px 30px rgba(0, 245, 255, 0.2) !important;
+}
+
+.user-role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: 'Rajdhani', sans-serif;
+  letter-spacing: 0.5px;
+  background: rgba(0, 245, 255, 0.12);
+  color: #00F5FF;
+  border: 1px solid rgba(0, 245, 255, 0.3);
+  white-space: nowrap;
+}
+
+.status-dot-pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00FF9D;
+  box-shadow: 0 0 8px #00FF9D;
+  animation: status-dot-anim 1.5s infinite alternate;
+}
+
+@keyframes status-dot-anim {
+  0% {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+.btn-cyber-logout {
+  background: linear-gradient(135deg, rgba(255, 0, 85, 0.18) 0%, rgba(153, 0, 51, 0.25) 100%) !important;
+  color: #FF3377 !important;
+  border: 1px solid rgba(255, 0, 85, 0.4) !important;
+  border-radius: 10px !important;
+  padding: 8px 12px !important;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 0.88rem;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 4px 15px rgba(255, 0, 85, 0.15) !important;
+  white-space: nowrap;
+}
+
+.btn-cyber-logout:hover {
+  background: linear-gradient(135deg, #FF0055 0%, #CC0044 100%) !important;
+  color: #FFFFFF !important;
+  border-color: #FF0055 !important;
+
+  box-shadow: 0 0 20px rgba(255, 0, 85, 0.5) !important;
+  transform: translateY(-2px);
+}
+
+.btn-cyber-logout:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* ==========================================================================
+   Autofill Override Styling (Prevents white/light blue default background)
+   ========================================================================== */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active,
+.glass-input:-webkit-autofill,
+.glass-input:-webkit-autofill:hover, 
+.glass-input:-webkit-autofill:focus, 
+.glass-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #091322 inset !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
+[data-theme="light"] input:-webkit-autofill,
+[data-theme="light"] input:-webkit-autofill:hover, 
+[data-theme="light"] input:-webkit-autofill:focus, 
+[data-theme="light"] input:-webkit-autofill:active,
+[data-theme="light"] .glass-input:-webkit-autofill,
+[data-theme="light"] .glass-input:-webkit-autofill:hover, 
+[data-theme="light"] .glass-input:-webkit-autofill:focus, 
+[data-theme="light"] .glass-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+  -webkit-text-fill-color: #0F172A !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+}
