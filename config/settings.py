@@ -92,9 +92,19 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database Configuration: MySQL 8.x (Laragon Defaults) with dynamic fallback
+DATABASE_URL = os.environ.get('DATABASE_URL')
 USE_MYSQL = os.environ.get('USE_MYSQL', 'True').lower() in ('true', '1')
 
-if USE_MYSQL:
+if DATABASE_URL:
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
+elif USE_MYSQL:
     try:
         import pymysql
         pymysql.install_as_MySQLdb()
