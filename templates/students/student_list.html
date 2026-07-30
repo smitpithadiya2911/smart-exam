@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Students Directory - EdTech System{% endblock %}
+{% block content %}
+<div class="container-fluid" data-aos="fade-up">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="font-heading fw-bold mb-1"><i class="bi bi-people-fill text-info me-2"></i> Enrolled Students Directory</h2>
+      <p class="text-muted mb-0">Overview of all active student profiles, roll numbers, and course enrollments.</p>
+    </div>
+  </div>
+
+  <div class="glass-card">
+    <div class="table-responsive">
+      <table class="table table-glass align-middle">
+        <thead>
+          <tr>
+            <th>Roll Number</th>
+            <th>Student Name</th>
+            <th>Email</th>
+            <th>Course & Semester</th>
+            <th>Department</th>
+            {% if user.role == 'SUPER_ADMIN' or user.role == 'TEACHER' or user.is_superuser %}<th>Actions</th>{% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for student in students %}
+          <tr>
+            <td><code><i class="bi bi-person-badge me-1"></i>{{ student.roll_number }}</code></td>
+            <td class="fw-bold text-white">{{ student.user.get_full_name }}</td>
+            <td style="color: #CBD5E1 !important;"><i class="bi bi-envelope me-1 text-info"></i>{{ student.user.email }}</td>
+            <td><span class="badge bg-primary-subtle text-primary">{{ student.course.code|default:"BCA" }} - Sem {{ student.semester.number|default:"1" }}</span></td>
+            <td><span class="badge bg-info-subtle text-info"><i class="bi bi-building me-1"></i>{{ student.department.code|default:"CS" }}</span></td>
+            {% if user.role == 'SUPER_ADMIN' or user.role == 'TEACHER' or user.is_superuser %}
+            <td>
+              <div class="d-flex gap-2">
+                <a href="{% url 'student_edit' student.id %}" class="btn-action-edit" title="Edit Student"><i class="bi bi-pencil-square"></i> Edit</a>
+                {% if user.role == 'SUPER_ADMIN' or user.is_superuser %}<a href="{% url 'student_delete' student.id %}" class="btn-action-delete" title="Delete Student"><i class="bi bi-trash3"></i> Delete</a>{% endif %}
+              </div>
+            </td>
+            {% endif %}
+          </tr>
+          {% empty %}
+          <tr><td colspan="6" class="text-center text-muted py-4">No students registered yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

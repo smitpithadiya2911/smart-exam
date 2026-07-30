@@ -1,0 +1,252 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load result_extras %}
+
+{% block title %}LIVE EXAM: {{ exam.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  body,
+  .question-slide-block,
+  .glass-card,
+  .options-group {
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" id="examRoomContainer" data-aos="fade"
+  data-remaining-seconds="{{ remaining_seconds }}"
+  data-attempt-id="{{ attempt.id }}"
+  data-max-violations="{{ exam.max_violations }}"
+  data-questions-count="{{ questions|length }}">
+  <!-- Top Exam Status Bar -->
+  <div class="glass-card mb-4 p-3 d-flex flex-wrap align-items-center justify-content-between gap-3 sticky-top"
+    style="z-index: 1020;">
+    <div class="d-flex align-items-center gap-3">
+      <div class="badge bg-danger animate__animated animate__pulse animate__infinite">LIVE EXAM IN PROGRESS</div>
+      <h5 class="font-heading mb-0 text-truncate" style="max-width: 300px;">{{ exam.title }}</h5>
+    </div>
+
+    <!-- Live Timer & Fullscreen Toggle -->
+    <div class="d-flex align-items-center gap-3">
+      <div class="glass-card px-3 py-1 bg-primary text-white d-flex align-items-center gap-2">
+        <i class="bi bi-clock-history fs-5"></i>
+        <span id="exam-countdown-timer" class="font-monospace fs-5 fw-bold">--:--</span>
+      </div>
+
+      <button type="button" class="btn btn-outline-secondary btn-sm" id="toggleFullscreenBtn"><i
+          class="bi bi-arrows-fullscreen"></i> Full Screen</button>
+
+      <form method="post" action="{% url 'submit_exam' attempt.id %}" id="exam-taking-form"
+        onsubmit="return confirm('Are you sure you want to finish and submit your exam now?');">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success fw-bold px-3"><i class="bi bi-check2-circle me-1"></i> Submit
+          Test</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Left Question Panel -->
+    <div class="col-lg-8">
+      <div class="glass-card min-vh-50">
+        {% for question in questions %}
+        <div class="question-slide-block {% if not forloop.first %}d-none{% endif %}"
+          id="question-block-{{ forloop.counter }}">
+          <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+            <span class="badge bg-primary fs-6">Question {{ forloop.counter }} of {{ questions|length }}</span>
+            <span class="small text-muted font-monospace">Marks: {{ question.marks }} | Type: {{
+              question.get_question_type_display }}</span>
+          </div>
+
+          <!-- Question Prompt -->
+          <div class="fs-5 fw-semibold mb-4 leading-relaxed text-dark">
+            {{ question.prompt_text|linebreaks }}
+          </div>
+
+          {% if question.image %}
+          <div class="mb-4 text-center">
+            <img src="{{ question.image.url }}" class="img-fluid rounded-3 border" style="max-height: 250px;"
+              alt="Question Diagram">
+          </div>
+          {% endif %}
+
+          <!-- Options List (MCQ / T/F) -->
+          {% if question.question_type == 'MCQ' or question.question_type == 'TF' %}
+          {% with answer=saved_answers|get_item:question.id %}
+          <div class="options-group d-flex flex-column gap-3 mb-4">
+            {% if question.option_a %}
+            <label class="glass-card p-3 d-flex align-items-center gap-3 cursor-pointer">
+              <input type="radio" name="q_{{ question.id }}" value="A" class="form-check-input q-option-input"
+                data-question-id="{{ question.id }}" {% if answer and answer.selected_option == 'A' %}checked{% endif %}>
+              <span><strong>A.</strong> {{ question.option_a }}</span>
+            </label>
+            {% endif %}
+
+            {% if question.option_b %}
+            <label class="glass-card p-3 d-flex align-items-center gap-3 cursor-pointer">
+              <input type="radio" name="q_{{ question.id }}" value="B" class="form-check-input q-option-input"
+                data-question-id="{{ question.id }}" {% if answer and answer.selected_option == 'B' %}checked{% endif %}>
+              <span><strong>B.</strong> {{ question.option_b }}</span>
+            </label>
+            {% endif %}
+
+            {% if question.option_c %}
+            <label class="glass-card p-3 d-flex align-items-center gap-3 cursor-pointer">
+              <input type="radio" name="q_{{ question.id }}" value="C" class="form-check-input q-option-input"
+                data-question-id="{{ question.id }}" {% if answer and answer.selected_option == 'C' %}checked{% endif %}>
+              <span><strong>C.</strong> {{ question.option_c }}</span>
+            </label>
+            {% endif %}
+
+            {% if question.option_d %}
+            <label class="glass-card p-3 d-flex align-items-center gap-3 cursor-pointer">
+              <input type="radio" name="q_{{ question.id }}" value="D" class="form-check-input q-option-input"
+                data-question-id="{{ question.id }}" {% if answer and answer.selected_option == 'D' %}checked{% endif %}>
+              <span><strong>D.</strong> {{ question.option_d }}</span>
+            </label>
+            {% endif %}
+          </div>
+          {% endwith %}
+          {% else %}
+          <!-- Text Input for Short / Coding / Fill in Blank -->
+          <div class="mb-4">
+            <textarea class="form-control glass-input q-text-input" rows="5" data-question-id="{{ question.id }}"
+              placeholder="Type your answer or code response here..."></textarea>
+          </div>
+          {% endif %}
+
+          <!-- Bottom Slide Nav Buttons -->
+          <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+            <button type="button" class="btn btn-outline-secondary btn-nav-prev"
+              data-target="{{ forloop.counter|add:'-1' }}" {% if forloop.first %}disabled{% endif %}><i
+                class="bi bi-chevron-left me-1"></i> Previous</button>
+            <button type="button" class="btn btn-warning text-dark font-semibold btn-mark-review"
+              data-question-id="{{ question.id }}" data-counter="{{ forloop.counter }}"><i class="bi bi-bookmark-star me-1"></i>
+              Mark for Review</button>
+            <button type="button" class="btn btn-primary btn-nav-next" data-target="{{ forloop.counter|add:'1' }}" {% if forloop.last %}disabled{% endif %}>Next <i class="bi bi-chevron-right ms-1"></i></button>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Right Glass Question Palette -->
+    <div class="col-lg-4">
+      <div class="glass-card">
+        <h6 class="font-heading fw-bold mb-3"><i class="bi bi-grid-3x3-gap-fill text-primary me-2"></i> Question Palette
+        </h6>
+
+        <!-- Palette Status Legend -->
+        <div class="d-flex flex-wrap gap-2 mb-4 small text-muted border-bottom pb-3">
+          <span class="d-flex align-items-center gap-1"><span class="q-badge q-answered"
+              style="width:20px; height:20px;"></span> Answered</span>
+          <span class="d-flex align-items-center gap-1"><span class="q-badge q-review"
+              style="width:20px; height:20px;"></span> Review</span>
+          <span class="d-flex align-items-center gap-1"><span class="q-badge q-not-visited"
+              style="width:20px; height:20px;"></span> Visited</span>
+        </div>
+
+        <!-- Question Buttons Grid -->
+        <div class="d-flex flex-wrap gap-2 mb-4">
+          {% for q in questions %}
+          <div id="palette-badge-{{ q.id }}" class="q-badge q-not-visited palette-badge" data-target="{{ forloop.counter }}">
+            {{ forloop.counter }}
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- Student Instructions Footer -->
+        <div class="small text-muted border-top pt-3">
+          <i class="bi bi-info-circle me-1 text-primary"></i> Answers are <strong>autosaved</strong> instantaneously to
+          the server via AJAX.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/exam_engine.js' %}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const container = document.getElementById('examRoomContainer');
+    const remainingSec = parseInt(container.getAttribute('data-remaining-seconds'));
+    const attemptId = container.getAttribute('data-attempt-id');
+    const maxViolations = parseInt(container.getAttribute('data-max-violations'));
+    initExamEngine(remainingSec, attemptId, maxViolations);
+
+    // Full Screen Toggle Event Listener
+    const fsBtn = document.getElementById('toggleFullscreenBtn');
+    if (fsBtn) {
+      fsBtn.addEventListener('click', toggleFullScreen);
+    }
+
+    // Previous Button Click Listeners
+    document.querySelectorAll('.btn-nav-prev').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = parseInt(btn.getAttribute('data-target'));
+        navigateSlide(target);
+      });
+    });
+
+    // Next Button Click Listeners
+    document.querySelectorAll('.btn-nav-next').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = parseInt(btn.getAttribute('data-target'));
+        navigateSlide(target);
+      });
+    });
+
+    // Mark for Review Click Listeners
+    document.querySelectorAll('.btn-mark-review').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const questionId = btn.getAttribute('data-question-id');
+        const counter = parseInt(btn.getAttribute('data-counter'));
+        markReview(questionId, counter);
+      });
+    });
+
+    // Palette Badge Click Listeners
+    document.querySelectorAll('.palette-badge').forEach(badge => {
+      badge.addEventListener('click', () => {
+        const target = parseInt(badge.getAttribute('data-target'));
+        jumpToSlide(target);
+      });
+    });
+  });
+
+  function navigateSlide(targetIndex) {
+    const container = document.getElementById('examRoomContainer');
+    const questionsCount = parseInt(container.getAttribute('data-questions-count'));
+    if (targetIndex < 1 || targetIndex > questionsCount) return;
+    document.querySelectorAll('.question-slide-block').forEach(el => el.classList.add('d-none'));
+    document.getElementById(`question-block-${targetIndex}`).classList.remove('d-none');
+    currentQuestionIndex = targetIndex;
+  }
+
+  function jumpToSlide(targetIndex) {
+    navigateSlide(targetIndex);
+  }
+
+  function markReview(questionId, slideIndex) {
+    const badge = document.getElementById(`palette-badge-${questionId}`);
+    if (badge) badge.className = 'q-badge q-review';
+    navigateSlide(slideIndex + 1);
+  }
+
+  function toggleFullScreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => console.log(err));
+    } else {
+      document.exitFullscreen();
+    }
+  }
+</script>
+{% endblock %}

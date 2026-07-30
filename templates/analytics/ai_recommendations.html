@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AI Personalised Learning Recommendations{% endblock %}
+
+{% block content %}
+<div class="container-fluid" data-aos="fade-up">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="font-heading fw-bold mb-1"><i class="bi bi-cpu text-primary me-2"></i> AI Personalised Learning Plan</h2>
+      <p class="text-muted mb-0">Heuristic analytics based on your exam submission history and topic accuracy rates.</p>
+    </div>
+    <div class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 fs-6">
+      Predicted Next Score: <strong>{{ ai_data.predicted_next_score }}%</strong> ({{ ai_data.trend_label }})
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Weak Topics Section -->
+    <div class="col-lg-7">
+      <div class="glass-card mb-4">
+        <h5 class="font-heading mb-3 text-danger"><i class="bi bi-exclamation-octagon-fill me-2"></i> Identified Weak Focus Topics (< 50% Accuracy)</h5>
+        {% if ai_data.weak_topic_recs %}
+          {% for rec in ai_data.weak_topic_recs %}
+          <div class="p-3 mb-3 rounded-3 bg-danger-subtle border border-danger-subtle">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="fw-bold text-danger fs-6">{{ rec.weak_topic }}</span>
+              <span class="badge bg-danger">{{ rec.accuracy_percentage }}% Accuracy</span>
+            </div>
+            <div class="text-muted small mt-2">Subject: <strong>{{ rec.subject_name }}</strong> | Suggested Chapter: <strong>{{ rec.suggested_chapter|default:"Core Syllabus" }}</strong></div>
+            <p class="mb-0 mt-2 text-dark">{{ rec.recommendation_text }}</p>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="text-center py-5 text-muted">
+            <i class="bi bi-trophy-fill display-4 text-warning mb-2"></i>
+            <h5 class="font-heading text-success">Outstanding Performance!</h5>
+            <p>No weak topics (< 50% accuracy) detected across your exam history.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- AI Learning Tips & Strategy -->
+    <div class="col-lg-5">
+      <div class="glass-card mb-4">
+        <h5 class="font-heading mb-3"><i class="bi bi-lightbulb-fill text-warning me-2"></i> Heuristic AI Learning Tips</h5>
+        <div class="list-group list-group-flush bg-transparent">
+          <div class="list-group-item bg-transparent px-0">
+            <div class="fw-semibold text-primary"><i class="bi bi-check2-circle me-1"></i> Active Recall Technique</div>
+            <div class="small text-muted">Test yourself using the Question Bank filters instead of passively re-reading slides.</div>
+          </div>
+          <div class="list-group-item bg-transparent px-0">
+            <div class="fw-semibold text-primary"><i class="bi bi-check2-circle me-1"></i> Negative Marking Prevention</div>
+            <div class="small text-muted">Skip questions you are less than 60% sure about to minimize score penalties.</div>
+          </div>
+          <div class="list-group-item bg-transparent px-0">
+            <div class="fw-semibold text-primary"><i class="bi bi-check2-circle me-1"></i> Time Management Strategy</div>
+            <div class="small text-muted">Spend max 1 minute per 1-mark MCQ, leaving 10 minutes at the end for marked review.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if planner_data.has_attempts %}
+  <!-- Subject-wise Learning Progress -->
+  <div class="row g-4 mb-4">
+    <div class="col-12">
+      <div class="glass-card">
+        <h5 class="font-heading mb-4 text-white"><i class="bi bi-bar-chart-steps text-info me-2"></i> Subject-wise Learning Progress</h5>
+        <div class="row g-3">
+          {% for item in planner_data.subject_progress %}
+            <div class="col-md-6">
+              <div class="p-3 rounded-3 border border-secondary border-opacity-25" style="background: rgba(255, 255, 255, 0.02);">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="fw-bold text-white fs-6">{{ item.subject.name }} ({{ item.subject.code }})</span>
+                  <span class="badge {% if 'Critical' in item.priority %}bg-danger{% elif 'Moderate' in item.priority %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                    {{ item.priority }}
+                  </span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-1 small text-muted">
+                  <span>Average Performance Score:</span>
+                  <span class="fw-bold text-info">{{ item.progress_val }}%</span>
+                </div>
+                <div class="progress mb-3" style="height: 10px; background: rgba(255, 255, 255, 0.05); border-radius: 5px;">
+                  <div class="progress-bar {% if item.progress_val < 50 %}bg-danger{% elif item.progress_val < 75 %}bg-warning{% else %}bg-success{% endif %}" 
+                       role="progressbar" 
+                       style="width: {{ item.progress_val }}%; border-radius: 5px;" 
+                       aria-valuenow="{{ item.progress_val }}" 
+                       aria-valuemin="0" 
+                       aria-valuemax="100">
+                  </div>
+                </div>
+                <div class="text-muted small">
+                  <strong>AI Study Suggestion:</strong> {{ item.suggestion }}
+                </div>
+              </div>
+            </div>
+          {% empty %}
+            <div class="col-12 text-center text-muted">No subject progress data available.</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Weekly Routine Study Timetable -->
+  <div class="row g-4 mb-4">
+    <div class="col-12">
+      <div class="glass-card">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+          <h5 class="font-heading text-white mb-0"><i class="bi bi-calendar3 text-primary me-2"></i> Personalized Weekly Routine Study Planner</h5>
+          <a href="{% url 'download_timetable' %}" class="btn btn-glass-primary">
+            <i class="bi bi-download me-1"></i> Download Weekly Schedule (PDF)
+          </a>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-glass table-bordered align-middle text-center">
+            <thead>
+              <tr class="text-info font-monospace small">
+                <th>Time Slot</th>
+                {% for day in planner_data.days %}
+                  <th>{{ day }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in planner_data.timetable_rows %}
+                <tr>
+                  <td class="text-primary font-monospace fw-bold text-wrap" style="max-width: 140px;">
+                    <i class="bi bi-clock me-1"></i> {{ row.slot_name }}
+                  </td>
+                  {% for day_info in row.days %}
+                    <td>
+                      <div class="p-2 rounded-2 small text-wrap text-white text-center" 
+                           style="background: rgba(255, 255, 255, 0.03); min-height: 52px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255, 255, 255, 0.05);">
+                        {{ day_info.activity }}
+                      </div>
+                    </td>
+                  {% endfor %}
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <!-- Empty State / No Exam Attempts Yet -->
+  <div class="row g-4 mb-4">
+    <div class="col-12">
+      <div class="glass-card text-center py-5" style="border: 1px dashed rgba(0, 245, 255, 0.2);">
+        <i class="bi bi-cpu display-1 text-primary mb-3" style="font-size: 5rem; text-shadow: 0 0 20px rgba(0, 245, 255, 0.5); color: #00F5FF !important;"></i>
+        <h3 class="font-heading text-white fw-bold mb-2">AI Personalised Study Planner Readying</h3>
+        <p class="text-muted mx-auto" style="max-width: 500px;">
+          The AI Personalized Study Planner automatically creates dynamic daily routines and effort allocations based on your actual performance in exams. Your custom routine will generate automatically once you complete an exam attempt.
+        </p>
+        <a href="{% url 'student_dashboard' %}" class="btn btn-glass-primary mt-3">
+          <i class="bi bi-play-circle me-1"></i> Go to Dashboard & Take Your First Exam
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

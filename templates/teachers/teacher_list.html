@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}Teachers Directory - EdTech System{% endblock %}
+{% block content %}
+<div class="container-fluid" data-aos="fade-up">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="font-heading fw-bold mb-1"><i class="bi bi-person-workspace text-info me-2"></i> Faculty & Teachers Directory</h2>
+      <p class="text-muted mb-0">Manage teaching faculty accounts, qualifications, and department assignments.</p>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="glass-card">
+        <div class="table-responsive">
+          <table class="table table-glass align-middle">
+            <thead>
+              <tr>
+                <th>Emp ID</th>
+                <th>Teacher Name</th>
+                <th>Email</th>
+                <th>Designation</th>
+                <th>Department</th>
+                {% if user.role == 'SUPER_ADMIN' or user.is_superuser %}<th>Actions</th>{% endif %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for teacher in teachers %}
+              <tr>
+                <td><code><i class="bi bi-person-vcard me-1"></i>{{ teacher.employee_id }}</code></td>
+                <td class="fw-bold text-white">Prof. {{ teacher.user.get_full_name }}</td>
+                <td style="color: #CBD5E1 !important;"><i class="bi bi-envelope me-1 text-info"></i>{{ teacher.user.email }}</td>
+                <td><span class="badge bg-secondary-subtle text-secondary">{{ teacher.designation }}</span></td>
+                <td><span class="badge bg-primary-subtle text-primary"><i class="bi bi-building me-1"></i>{{ teacher.department.code|default:"CS" }}</span></td>
+                {% if user.role == 'SUPER_ADMIN' or user.is_superuser %}
+                <td>
+                  <div class="d-flex gap-2">
+                    <a href="{% url 'teacher_edit' teacher.id %}" class="btn-action-edit" title="Edit Teacher"><i class="bi bi-pencil-square"></i> Edit</a>
+                    <a href="{% url 'teacher_delete' teacher.id %}" class="btn-action-delete" title="Delete Teacher"><i class="bi bi-trash3"></i> Delete</a>
+                  </div>
+                </td>
+                {% endif %}
+              </tr>
+              {% empty %}
+              <tr><td colspan="6" class="text-center text-muted py-4">No teacher accounts created yet.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    {% if user.role == 'SUPER_ADMIN' or user.is_superuser %}
+    <div class="col-lg-4">
+      <div class="glass-card">
+        <h5 class="font-heading mb-3"><i class="bi bi-person-plus-fill text-info me-2"></i> Register New Teacher</h5>
+        <form method="post" autocomplete="off">
+          {% csrf_token %}
+          <!-- Dummy inputs to prevent browser credentials autofill -->
+          <input type="text" name="prevent_autofill_username" style="display:none !important;" aria-hidden="true" tabindex="-1">
+          <input type="password" name="prevent_autofill_password" style="display:none !important;" aria-hidden="true" tabindex="-1">
+
+          <div class="mb-2"><label class="form-label small fw-semibold text-info">First Name</label>{{ form.first_name }}</div>
+          <div class="mb-2"><label class="form-label small fw-semibold text-info">Last Name</label>{{ form.last_name }}</div>
+          <div class="mb-2"><label class="form-label small fw-semibold text-info">Email Address</label>{{ form.email }}</div>
+          <div class="mb-2">
+            <label class="form-label small fw-semibold text-info">Password</label>
+            <div class="position-relative">
+              {{ form.password }}
+              <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y me-2 text-muted p-1" onclick="togglePassword(null, this)" style="text-decoration: none; z-index: 100; cursor: pointer;" title="Toggle password visibility">
+                <i class="bi bi-eye-fill fs-5" style="color: #00F5FF;"></i>
+              </button>
+            </div>
+          </div>
+          <div class="mb-2"><label class="form-label small fw-semibold text-info">Employee ID</label>{{ form.employee_id }}</div>
+          <div class="mb-2"><label class="form-label small fw-semibold text-info">Department</label>{{ form.department }}</div>
+          <div class="mb-2"><label class="form-label small fw-semibold text-info">Designation</label>{{ form.designation }}</div>
+          <div class="mb-3"><label class="form-label small fw-semibold text-info">Qualification</label>{{ form.qualification }}</div>
+          <button type="submit" class="btn btn-glass-primary w-100"><i class="bi bi-check-lg me-1"></i> Create Teacher Account</button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+

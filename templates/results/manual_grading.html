@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Manual Subjective Grading - EdTech System{% endblock %}
+
+{% block content %}
+<div class="container" data-aos="fade-up" style="max-width: 850px;">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="font-heading fw-bold mb-1">Teacher Subjective Grading</h2>
+      <p class="text-muted mb-0">Evaluate student subjective essay and coding answers.</p>
+    </div>
+  </div>
+
+  <div class="glass-card mb-4">
+    <div class="fw-bold fs-5 mb-1">Candidate: {{ attempt.student.get_full_name }}</div>
+    <div class="text-muted small">Exam: {{ attempt.exam.title }} | Current Score: <strong id="current-score-val">{{ attempt.total_score }}</strong> / {{ attempt.exam.total_marks }}</div>
+  </div>
+
+  {% for ans in answers %}
+  <div class="glass-card mb-3">
+    <div class="d-flex justify-content-between mb-2">
+      <span class="badge bg-primary">Question {{ forloop.counter }}</span>
+      <span class="small font-monospace">Max Marks: {{ ans.question.marks }}</span>
+    </div>
+    <div class="fw-semibold mb-3">{{ ans.question.prompt_text }}</div>
+
+    <div class="p-3 bg-body-tertiary rounded-3 mb-3">
+      <div class="small font-monospace text-muted mb-1">STUDENT RESPONSE:</div>
+      <div>{{ ans.text_response|default:ans.selected_option|default:"No response provided" }}</div>
+    </div>
+
+    <form class="row g-2 align-items-center save-grade-form" data-answer-id="{{ ans.id }}">
+      {% csrf_token %}
+      <div class="col-md-3">
+        <label class="form-label small mb-1">Award Marks</label>
+        <input type="number" step="0.5" class="form-control glass-input input-marks" value="{{ ans.marks_obtained }}" max="{{ ans.question.marks }}">
+      </div>
+      <div class="col-md-7">
+        <label class="form-label small mb-1">Teacher Feedback</label>
+        <input type="text" class="form-control glass-input input-feedback" value="{{ ans.teacher_feedback|default:'' }}" placeholder="Optional feedback comment...">
+      </div>
+      <div class="col-md-2 pt-4">
+        <button type="submit" class="btn btn-sm btn-glass-primary w-100"><i class="bi bi-check-lg"></i> Save</button>
+      </div>
+    </form>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.save-grade-form').forEach(form => {
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const answerId = form.getAttribute('data-answer-id');
+    const marks = form.querySelector('.input-marks').value;
+    const feedback = form.querySelector('.input-feedback').value;
+
+    const formData = new FormData();
+    formData.append('answer_id', answerId);
+    formData.append('marks', marks);
+    formData.append('feedback', feedback);
+
+    fetch('/results/save-manual-grade/', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCsrfToken() },
+      body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === 'success') {
+        document.getElementById('current-score-val').innerText = data.new_total_score;
+        alert('Grade saved successfully!');
+      }
+    });
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Subjects - EdTech System{% endblock %}
+{% block content %}
+<div class="container-fluid" data-aos="fade-up">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="font-heading fw-bold mb-1"><i class="bi bi-book-fill text-info me-2"></i> Subjects & Modules</h2>
+      <p class="text-muted mb-0">Course subjects, curriculum modules, and assigned teaching faculty.</p>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="glass-card">
+        <div class="table-responsive">
+          <table class="table table-glass align-middle">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Subject Name</th>
+                <th>Semester</th>
+                <th>Assigned Teacher</th>
+                <th>Credits</th>
+                {% if user.role == 'SUPER_ADMIN' or user.is_superuser %}<th>Actions</th>{% endif %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for subject in subjects %}
+              <tr>
+                <td><code><i class="bi bi-code-slash me-1"></i>{{ subject.code }}</code></td>
+                <td class="fw-bold text-white">{{ subject.name }}</td>
+                <td><span class="badge bg-primary-subtle text-primary">{{ subject.semester.course.code }} - Sem {{ subject.semester.number }}</span></td>
+                <td>
+                  {% if subject.assigned_teacher %}
+                    <span class="badge bg-info-subtle text-info"><i class="bi bi-person-badge me-1"></i>Prof. {{ subject.assigned_teacher.get_full_name }}</span>
+                  {% else %}
+                    <span class="badge bg-warning-subtle text-warning"><i class="bi bi-exclamation-triangle me-1"></i>Unassigned</span>
+                  {% endif %}
+                </td>
+                <td><span class="badge bg-secondary-subtle text-secondary">{{ subject.credits }} Credits</span></td>
+                {% if user.role == 'SUPER_ADMIN' or user.is_superuser %}
+                <td>
+                  <div class="d-flex gap-2">
+                    <a href="{% url 'subject_edit' subject.id %}" class="btn-action-edit" title="Edit Subject"><i class="bi bi-pencil-square"></i> Edit</a>
+                    <a href="{% url 'subject_delete' subject.id %}" class="btn-action-delete" title="Delete Subject"><i class="bi bi-trash3"></i> Delete</a>
+                  </div>
+                </td>
+                {% endif %}
+              </tr>
+              {% empty %}
+              <tr><td colspan="6" class="text-center text-muted py-4">No academic subjects found.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    {% if user.role == 'SUPER_ADMIN' or user.is_superuser %}
+    <div class="col-lg-4">
+      <div class="glass-card">
+        <h5 class="font-heading mb-3"><i class="bi bi-plus-circle-fill text-info me-2"></i> Add Subject</h5>
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-3"><label class="form-label small fw-semibold text-info">Semester</label>{{ form.semester }}</div>
+          <div class="mb-3"><label class="form-label small fw-semibold text-info">Subject Name</label>{{ form.name }}</div>
+          <div class="mb-3"><label class="form-label small fw-semibold text-info">Subject Code</label>{{ form.code }}</div>
+          <div class="mb-3"><label class="form-label small fw-semibold text-info">Assigned Teacher</label>{{ form.assigned_teacher }}</div>
+          <div class="mb-3"><label class="form-label small fw-semibold text-info">Credits</label>{{ form.credits }}</div>
+          <div class="mb-3"><label class="form-label small fw-semibold text-info">Description</label>{{ form.description }}</div>
+          <button type="submit" class="btn btn-glass-primary w-100"><i class="bi bi-check-lg me-1"></i> Save Subject</button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} - EdTech System{% endblock %}
+
+{% block content %}
+<div class="container" data-aos="fade-up" style="max-width: 900px;">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="font-heading fw-bold mb-0">{{ title }}</h2>
+    <a href="{% url 'exam_list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i> Back</a>
+  </div>
+
+  <div class="glass-card">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="row g-3">
+        <div class="col-md-8"><label class="form-label font-monospace small">EXAM TITLE</label>{{ form.title }}</div>
+        <div class="col-md-4"><label class="form-label font-monospace small">SUBJECT</label>{{ form.subject }}</div>
+
+        <div class="col-md-6"><label class="form-label font-monospace small">START TIME</label>{{ form.start_time }}</div>
+        <div class="col-md-6"><label class="form-label font-monospace small">END TIME</label>{{ form.end_time }}</div>
+
+        <div class="col-md-4"><label class="form-label font-monospace small">DURATION (MINUTES)</label>{{ form.duration_minutes }}</div>
+        <div class="col-md-4"><label class="form-label font-monospace small">TOTAL MARKS</label>{{ form.total_marks }}</div>
+        <div class="col-md-4"><label class="form-label font-monospace small">PASSING MARKS</label>{{ form.passing_marks }}</div>
+
+        <div class="col-md-4"><label class="form-label font-monospace small">NEGATIVE MARKING / WRONG ANS</label>{{ form.negative_marking }}</div>
+        <div class="col-md-4"><label class="form-label font-monospace small">ATTEMPT LIMIT</label>{{ form.attempt_limit }}</div>
+        <div class="col-md-4"><label class="form-label font-monospace small">ANTI-CHEAT MAX VIOLATIONS</label>{{ form.max_violations }}</div>
+
+        <div class="col-md-6"><label class="form-label font-monospace small">ENTRY PASSCODE (OPTIONAL)</label>{{ form.password }}</div>
+        <div class="col-md-6 d-flex align-items-center gap-4 pt-4">
+          <div class="form-check">{{ form.shuffle_questions }} <label class="form-check-label small">Shuffle Questions</label></div>
+          <div class="form-check">{{ form.shuffle_options }} <label class="form-check-label small">Shuffle Options</label></div>
+          <div class="form-check">{{ form.is_published }} <label class="form-check-label small text-primary fw-bold">Publish Now</label></div>
+        </div>
+
+        <div class="col-12"><label class="form-label font-monospace small">EXAM INSTRUCTIONS FOR STUDENTS</label>{{ form.instructions }}</div>
+
+        {% if not exam %}
+        <div class="col-12 border-top pt-3">
+          <div class="row g-3">
+            <div class="col-md-6 border-end">
+              <label class="form-label font-monospace small text-info fw-bold"><i class="bi bi-file-earmark-pdf me-1"></i> OPTION A: IMPORT QUESTIONS FROM PDF (RECOMMENDED)</label>
+              {{ form.question_pdf }}
+              <div class="form-text mt-2" style="color: #94A3B8;">Upload a PDF of MCQ questions (choices A/B/C/D and answers marked). If a PDF is uploaded, questions will be extracted from it and linked directly to this exam!</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label font-monospace small text-primary fw-bold"><i class="bi bi-shuffle me-1"></i> OPTION B: QUESTION BANK SAMPLER COUNT</label>
+              <div class="d-flex align-items-center gap-3">
+                <input type="number" id="numQuestionsInput" name="num_questions" value="20" class="form-control glass-input" style="max-width: 120px;" required>
+                <div class="btn-group" role="group">
+                  <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('numQuestionsInput').value=5">5 Qs</button>
+                  <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('numQuestionsInput').value=10">10 Qs</button>
+                  <button type="button" class="btn btn-primary btn-sm font-semibold" onclick="document.getElementById('numQuestionsInput').value=20">20 Qs</button>
+                </div>
+              </div>
+              <div class="form-text mt-2" style="color: #94A3B8;">Select how many questions Django should randomly sample from the database question bank for the selected subject.</div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="mt-4 pt-3 border-top d-flex gap-2 justify-content-end">
+        <a href="{% url 'exam_list' %}" class="btn btn-outline-secondary">Cancel</a>
+        <button type="submit" class="btn btn-glass-primary px-4"><i class="bi bi-save me-1"></i> Save Exam Config</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

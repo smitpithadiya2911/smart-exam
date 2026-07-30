@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Certificates - EdTech System{% endblock %}
+
+{% block content %}
+<div class="container-fluid" data-aos="fade-up">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="font-heading fw-bold mb-1"><i class="bi bi-award-fill text-info me-2"></i> Qualifying Certificates</h2>
+      <p class="text-muted mb-0">Official QR-verified completion certificates earned by candidates.</p>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    {% for cert in certificates %}
+    <div class="col-md-6 col-lg-4">
+      <div class="glass-card tilt-card text-center p-4">
+        <div class="badge bg-success-subtle text-success mb-3 px-3 py-2"><i class="bi bi-patch-check-fill me-1"></i>OFFICIAL CERTIFICATE</div>
+        <h5 class="font-heading fw-bold text-white mb-1">{{ cert.exam.title }}</h5>
+        <div class="small mb-3" style="color: #CBD5E1 !important;"><i class="bi bi-book me-1 text-info"></i>{{ cert.exam.subject.code }} - {{ cert.exam.subject.name }}</div>
+
+        <div class="mb-3">
+          {% if cert.qr_code_image %}
+            <img src="{{ cert.qr_code_image.url }}" width="110" class="img-fluid rounded-3 border p-2 bg-white shadow-sm" alt="QR Code">
+          {% endif %}
+        </div>
+
+        <div class="mb-3"><code><i class="bi bi-qr-code me-1"></i>{{ cert.certificate_uuid }}</code></div>
+
+        <a href="{% url 'certificate_detail' cert.certificate_uuid %}" class="btn btn-glass-primary btn-sm w-100"><i class="bi bi-eye me-1"></i> Preview 3D Card</a>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5 text-muted">
+      <i class="bi bi-award display-4 mb-2 text-info d-block"></i>
+      <p>No certificates earned yet. Pass an examination to automatically generate your QR certificate.</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+

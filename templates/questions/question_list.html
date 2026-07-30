@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block title %}Question Bank - EdTech System{% endblock %}
+
+{% block content %}
+<div class="container-fluid" data-aos="fade-up">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="font-heading fw-bold mb-1"><i class="bi bi-patch-question-fill text-info me-2"></i> Question Bank Repository</h2>
+      <p class="text-muted mb-0">Multi-type question bank with Excel import/export and random question sampling.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="{% url 'question_export' %}" class="btn btn-action-edit"><i class="bi bi-file-earmark-excel me-1"></i> Export Excel</a>
+      <a href="{% url 'question_import' %}" class="btn btn-action-view"><i class="bi bi-file-earmark-arrow-up me-1"></i> Import Excel</a>
+      <a href="{% url 'question_create' %}" class="btn btn-glass-primary"><i class="bi bi-plus-lg me-1"></i> Add Question</a>
+    </div>
+  </div>
+
+  <!-- Filter & Search Bar -->
+  <div class="glass-card mb-4">
+    <form method="get" class="row g-3">
+      <div class="col-md-3">
+        <select name="subject" class="form-select glass-input">
+          <option value="">-- Filter Subject --</option>
+          {% for s in subjects %}
+            <option value="{{ s.id }}" {% if selected_subject == s.id|stringformat:"s" %}selected{% endif %}>{{ s.code }} - {{ s.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select name="difficulty" class="form-select glass-input">
+          <option value="">-- Difficulty --</option>
+          <option value="EASY" {% if selected_difficulty == 'EASY' %}selected{% endif %}>Easy</option>
+          <option value="MEDIUM" {% if selected_difficulty == 'MEDIUM' %}selected{% endif %}>Medium</option>
+          <option value="HARD" {% if selected_difficulty == 'HARD' %}selected{% endif %}>Hard</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select name="type" class="form-select glass-input">
+          <option value="">-- Question Type --</option>
+          <option value="MCQ" {% if selected_type == 'MCQ' %}selected{% endif %}>MCQ</option>
+          <option value="TF" {% if selected_type == 'TF' %}selected{% endif %}>True/False</option>
+          <option value="FILL" {% if selected_type == 'FILL' %}selected{% endif %}>Fill in Blank</option>
+          <option value="SHORT" {% if selected_type == 'SHORT' %}selected{% endif %}>Short Answer</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <input type="text" name="q" value="{{ search_query|default:'' }}" class="form-control glass-input" placeholder="Search prompt text...">
+      </div>
+      <div class="col-md-2 d-flex gap-2">
+        <button type="submit" class="btn btn-glass-primary w-100"><i class="bi bi-search me-1"></i> Filter</button>
+        <a href="{% url 'question_list' %}" class="btn btn-action-delete btn-action-icon" title="Reset Filters"><i class="bi bi-x-circle fs-5"></i></a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Questions Table -->
+  <div class="glass-card">
+    <div class="table-responsive">
+      <table class="table table-glass align-middle">
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>Type</th>
+            <th>Question Prompt</th>
+            <th>Correct Answer</th>
+            <th>Difficulty</th>
+            <th>Marks</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for q in questions %}
+          <tr>
+            <td><code><i class="bi bi-book me-1"></i>{{ q.subject.code }}</code></td>
+            <td><span class="badge bg-primary-subtle text-primary">{{ q.get_question_type_display }}</span></td>
+            <td class="fw-semibold text-white text-wrap" style="max-width: 340px;">{{ q.prompt_text|truncatechars:100 }}</td>
+            <td><code class="code-emerald"><i class="bi bi-check2-circle me-1"></i>{{ q.correct_answer|truncatechars:30 }}</code></td>
+            <td>
+              {% if q.difficulty == 'EASY' %}
+                <span class="badge bg-success-subtle text-success">Easy</span>
+              {% elif q.difficulty == 'MEDIUM' %}
+                <span class="badge bg-warning-subtle text-warning">Medium</span>
+              {% else %}
+                <span class="badge bg-danger-subtle text-danger">Hard</span>
+              {% endif %}
+            </td>
+            <td><span class="badge bg-secondary-subtle text-secondary">{{ q.marks }} Marks</span></td>
+            <td>
+              <div class="d-flex gap-2">
+                <a href="{% url 'question_edit' q.id %}" class="btn-action-edit" title="Edit Question"><i class="bi bi-pencil-square"></i> Edit</a>
+                <a href="{% url 'question_delete' q.id %}" class="btn-action-delete" title="Delete Question"><i class="bi bi-trash3"></i> Delete</a>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7" class="text-center text-muted py-4">No questions found matching your filter criteria.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

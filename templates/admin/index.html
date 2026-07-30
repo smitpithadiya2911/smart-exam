@@ -1,0 +1,173 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+  .admin-hub-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+    margin-bottom: 25px;
+  }
+  .admin-app-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    transition: all 0.25s ease;
+  }
+  .admin-app-card:hover {
+    border-color: #0284c7;
+    box-shadow: 0 8px 20px rgba(2, 132, 199, 0.12);
+  }
+  .admin-app-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .admin-app-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: #e0f2fe;
+    color: #0284c7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+  }
+  .model-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px dashed #f1f5f9;
+  }
+  .model-row:last-child {
+    border-bottom: none;
+  }
+  .model-name {
+    font-weight: 500;
+    color: #1e293b;
+    text-decoration: none;
+  }
+  .model-name:hover {
+    color: #0284c7;
+  }
+  .model-actions a {
+    padding: 4px 10px;
+    font-size: 0.8rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    margin-left: 4px;
+  }
+  .btn-add { background: #e0f2fe; color: #0284c7; }
+  .btn-add:hover { background: #0284c7; color: #ffffff; }
+  .btn-change { background: #f1f5f9; color: #475569; }
+  .btn-change:hover { background: #cbd5e1; color: #0f172a; }
+</style>
+{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <!-- Top Welcome Header -->
+  <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 1px solid #bae6fd; border-radius: 12px; padding: 20px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <h2 style="font-family: 'Poppins', sans-serif; font-weight: 700; color: #1e3a8a; margin: 0 0 4px 0;">Database & Academic Operations Hub</h2>
+      <p style="margin: 0; color: #475569; font-size: 0.9rem;">Select a model to create, update, search, filter, or manage records across the system database.</p>
+    </div>
+    <div>
+      <a href="{% url 'admin_dashboard' %}" class="button" style="display: inline-flex; align-items: center; gap: 8px;">
+        <i class="bi bi-speedometer2 fs-5"></i> Graphical Command Center
+      </a>
+    </div>
+  </div>
+
+  {% if app_list %}
+  <!-- Categorized App Cards Grid -->
+  <div class="admin-hub-grid">
+    {% for app in app_list %}
+      <div class="admin-app-card">
+        <div class="admin-app-header">
+          <div class="admin-app-icon">
+            {% if app.app_label == 'accounts' %}<i class="bi bi-shield-lock-fill"></i>
+            {% elif app.app_label == 'departments' %}<i class="bi bi-building"></i>
+            {% elif app.app_label == 'courses' %}<i class="bi bi-journal-bookmark-fill"></i>
+            {% elif app.app_label == 'semesters' %}<i class="bi bi-calendar3"></i>
+            {% elif app.app_label == 'subjects' %}<i class="bi bi-book-fill"></i>
+            {% elif app.app_label == 'teachers' %}<i class="bi bi-person-workspace"></i>
+            {% elif app.app_label == 'students' %}<i class="bi bi-people-fill"></i>
+            {% elif app.app_label == 'questions' %}<i class="bi bi-patch-question-fill"></i>
+            {% elif app.app_label == 'exams' %}<i class="bi bi-card-checklist"></i>
+            {% elif app.app_label == 'certificates' %}<i class="bi bi-award-fill"></i>
+            {% else %}<i class="bi bi-folder-fill"></i>{% endif %}
+          </div>
+          <div>
+            <h3 style="font-family: 'Poppins', sans-serif; font-size: 1.1rem; margin: 0; color: #1e3a8a;">{{ app.name }}</h3>
+            <span style="font-size: 0.75rem; color: #64748b; font-family: monospace;">{{ app.app_label }} module</span>
+          </div>
+        </div>
+
+        <div>
+          {% for model in app.models %}
+            <div class="model-row">
+              <a href="{{ model.admin_url }}" class="model-name">
+                <i class="bi bi-dot me-1 text-primary"></i> {{ model.name }}
+              </a>
+              <div class="model-actions">
+                {% if model.add_url %}
+                  <a href="{{ model.add_url }}" class="btn-add"><i class="bi bi-plus-lg"></i> Add</a>
+                {% endif %}
+                {% if model.admin_url %}
+                  <a href="{{ model.admin_url }}" class="btn-change"><i class="bi bi-gear-fill"></i> Manage</a>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  {% else %}
+    <p>{% translate 'You don’t have permission to view or edit anything.' %}</p>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div id="content-related" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+  <div class="module" id="recent-actions-module" style="border: none; box-shadow: none; margin: 0;">
+    <h2 style="font-family: 'Poppins', sans-serif; font-size: 1rem; color: #1e3a8a; background: transparent; padding: 0 0 12px 0; border-bottom: 1px solid #f1f5f9; margin-bottom: 12px;">
+      <i class="bi bi-clock-history text-primary me-2"></i> Recent Admin Audit Log
+    </h2>
+    {% load log %}
+    {% get_admin_log 10 as admin_log for_user user %}
+    {% if not admin_log %}
+      <p style="color: #64748b; font-size: 0.85rem;">{% translate 'None available' %}</p>
+    {% else %}
+      <ul class="actionlist" style="list-style: none; padding: 0; margin: 0;">
+      {% for entry in admin_log %}
+        <li style="font-size: 0.85rem; padding: 6px 0; border-bottom: 1px solid #f8fafc;">
+          {% if entry.is_addition %}<span style="color: #10b981; font-weight: 600;"><i class="bi bi-plus-circle me-1"></i> Added:</span>
+          {% elif entry.is_change %}<span style="color: #0284c7; font-weight: 600;"><i class="bi bi-pencil me-1"></i> Edited:</span>
+          {% elif entry.is_deletion %}<span style="color: #ef4444; font-weight: 600;"><i class="bi bi-trash me-1"></i> Deleted:</span>
+          {% endif %}
+          <strong style="color: #334155;">{{ entry.object_repr }}</strong>
+          <span style="color: #94a3b8; font-size: 0.75rem; display: block;">{{ entry.content_type }}</span>
+        </li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

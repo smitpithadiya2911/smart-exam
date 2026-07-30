@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Edit Department - {{ department.code }}{% endblock %}
+{% block content %}
+<div class="container" data-aos="fade-up" style="max-width: 600px;">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="font-heading fw-bold mb-0">Edit Department</h2>
+    <a href="{% url 'department_list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i> Back to List</a>
+  </div>
+
+  <div class="glass-card">
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label font-monospace small">DEPARTMENT NAME</label>
+        {{ form.name }}
+      </div>
+      <div class="mb-3">
+        <label class="form-label font-monospace small">DEPARTMENT CODE</label>
+        {{ form.code }}
+      </div>
+      <div class="mb-3">
+        <label class="form-label font-monospace small">DESCRIPTION</label>
+        {{ form.description }}
+      </div>
+      <div class="d-flex gap-2 justify-content-end pt-3 border-top">
+        <a href="{% url 'department_list' %}" class="btn btn-outline-secondary">Cancel</a>
+        <button type="submit" class="btn btn-glass-primary px-4"><i class="bi bi-save me-1"></i> Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}My Profile - EdTech System{% endblock %}
+
+{% block content %}
+<div class="container" data-aos="fade-up" style="max-width: 700px;">
+  <h2 class="font-heading fw-bold mb-4">Account Profile</h2>
+  <div class="glass-card">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="row g-3">
+        <div class="col-md-6"><label class="form-label small">First Name</label>{{ form.first_name }}</div>
+        <div class="col-md-6"><label class="form-label small">Last Name</label>{{ form.last_name }}</div>
+        <div class="col-12"><label class="form-label small">Phone Number</label>{{ form.phone_number }}</div>
+        <div class="col-12"><label class="form-label small">Avatar Image</label>{{ form.avatar }}</div>
+      </div>
+      <button type="submit" class="btn btn-glass-primary mt-4">Save Changes</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,207 @@
+/* Cyberpunk Premium Theme for Django Admin Panel */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  --admin-bg: #04060F;
+  --admin-card-bg: rgba(9, 19, 34, 0.75);
+  --admin-primary: #00F5FF;
+  --admin-accent: #00A8FF;
+  --admin-purple: #7B3FFB;
+  --admin-text: #FFFFFF;
+  --admin-muted: #B8C0D4;
+  --admin-border: rgba(255, 255, 255, 0.1);
+  --admin-border-glow: rgba(0, 245, 255, 0.3);
+  --admin-success: #00FF9D;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif !important;
+  background-color: var(--admin-bg) !important;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(0, 245, 255, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(123, 63, 251, 0.1) 0%, transparent 45%) !important;
+  color: var(--admin-text) !important;
+}
+
+/* Header Styling */
+#header {
+  background: rgba(4, 6, 15, 0.9) !important;
+  backdrop-filter: blur(25px) !important;
+  border-bottom: 1px solid var(--admin-border-glow) !important;
+  color: #ffffff !important;
+  padding: 16px 28px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6) !important;
+}
+
+#header a:link, #header a:visited {
+  color: #ffffff !important;
+}
+
+#site-name a {
+  font-family: 'Orbitron', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 1.3rem !important;
+  color: var(--admin-primary) !important;
+  text-shadow: 0 0 10px rgba(0, 245, 255, 0.5) !important;
+  letter-spacing: 1px !important;
+}
+
+#user-tools {
+  font-size: 0.95rem !important;
+  font-weight: 500 !important;
+}
+
+#user-tools a {
+  background: rgba(0, 245, 255, 0.1) !important;
+  border: 1px solid rgba(0, 245, 255, 0.25) !important;
+  color: #ffffff !important;
+  padding: 8px 16px !important;
+  border-radius: 10px !important;
+  margin-left: 8px !important;
+  text-decoration: none !important;
+  transition: all 0.25s ease !important;
+}
+
+#user-tools a:hover {
+  background: rgba(0, 245, 255, 0.25) !important;
+  box-shadow: 0 0 15px var(--admin-border-glow) !important;
+}
+
+/* Breadcrumbs */
+div.breadcrumbs {
+  background: rgba(9, 19, 34, 0.6) !important;
+  backdrop-filter: blur(16px) !important;
+  border-bottom: 1px solid var(--admin-border) !important;
+  padding: 14px 28px !important;
+  color: var(--admin-muted) !important;
+  font-size: 0.9rem !important;
+}
+
+div.breadcrumbs a {
+  color: var(--admin-primary) !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+}
+
+/* Main Content Module Cards */
+#content {
+  padding: 28px !important;
+}
+
+.module {
+  background: var(--admin-card-bg) !important;
+  backdrop-filter: blur(25px) !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5) !important;
+  margin-bottom: 28px !important;
+  overflow: hidden !important;
+  transition: all 0.3s ease !important;
+}
+
+.module:hover {
+  border-color: var(--admin-border-glow) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 20px rgba(0, 245, 255, 0.2) !important;
+}
+
+.module h2, .module caption {
+  background: rgba(4, 6, 15, 0.8) !important;
+  color: var(--admin-primary) !important;
+  font-family: 'Orbitron', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 1rem !important;
+  letter-spacing: 1px !important;
+  padding: 14px 20px !important;
+  border-bottom: 1px solid var(--admin-border) !important;
+}
+
+/* Admin Tables */
+#result_list table, table {
+  width: 100% !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+#result_list th, table th {
+  background: rgba(9, 19, 34, 0.9) !important;
+  color: var(--admin-primary) !important;
+  font-family: 'Rajdhani', sans-serif !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  font-size: 0.9rem !important;
+  letter-spacing: 1px !important;
+  padding: 14px 18px !important;
+  border-bottom: 2px solid var(--admin-border-glow) !important;
+}
+
+#result_list td, table td {
+  padding: 14px 18px !important;
+  border-bottom: 1px solid var(--admin-border) !important;
+  font-size: 0.95rem !important;
+  color: var(--admin-text) !important;
+}
+
+#result_list tr:hover td {
+  background-color: rgba(0, 245, 255, 0.08) !important;
+}
+
+/* Action Buttons */
+.button, input[type=submit], input[type=button], .submit-row input, a.button {
+  background: linear-gradient(135deg, #00A8FF 0%, #7B3FFB 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(0, 245, 255, 0.4) !important;
+  border-radius: 10px !important;
+  padding: 10px 24px !important;
+  font-family: 'Rajdhani', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 1rem !important;
+  letter-spacing: 1px !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 15px rgba(0, 168, 255, 0.3) !important;
+  transition: all 0.25s ease !important;
+}
+
+.button:hover, input[type=submit]:hover, input[type=button]:hover, .submit-row input:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 24px rgba(0, 245, 255, 0.45) !important;
+}
+
+/* Form Fields */
+input[type=text], input[type=password], input[type=email], input[type=number], input[type=url], select, textarea {
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 10px !important;
+  padding: 10px 14px !important;
+  font-size: 0.95rem !important;
+  background-color: rgba(4, 6, 15, 0.7) !important;
+  color: var(--admin-text) !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+input[type=text]:focus, input[type=password]:focus, select:focus, textarea:focus {
+  border-color: var(--admin-primary) !important;
+  box-shadow: 0 0 15px var(--admin-border-glow) !important;
+  outline: none !important;
+}
+
+/* Filter Panel */
+#changelist-filter {
+  background: var(--admin-card-bg) !important;
+  border-left: 1px solid var(--admin-border) !important;
+  border-radius: 16px !important;
+  padding: 20px !important;
+}
+
+#changelist-filter h2 {
+  font-family: 'Orbitron', sans-serif !important;
+  font-size: 1rem !important;
+  color: var(--admin-primary) !important;
+}
+
+#changelist-filter a {
+  color: var(--admin-muted) !important;
+}
+
+#changelist-filter li.selected a {
+  color: var(--admin-primary) !important;
+  font-weight: 700 !important;
+}

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} - EdTech System{% endblock %}
+
+{% block content %}
+<div class="container" data-aos="fade-up" style="max-width: 850px;">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="font-heading fw-bold mb-0">{{ title }}</h2>
+    <a href="{% url 'question_list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i> Back to Bank</a>
+  </div>
+
+  <div class="glass-card">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="row g-3">
+        <div class="col-md-6"><label class="form-label font-monospace small">SUBJECT</label>{{ form.subject }}</div>
+        <div class="col-md-6"><label class="form-label font-monospace small">QUESTION TYPE</label>{{ form.question_type }}</div>
+
+        <div class="col-md-4"><label class="form-label font-monospace small">DIFFICULTY</label>{{ form.difficulty }}</div>
+        <div class="col-md-4"><label class="form-label font-monospace small">MARKS</label>{{ form.marks }}</div>
+        <div class="col-md-4"><label class="form-label font-monospace small">CHAPTER</label>{{ form.chapter }}</div>
+
+        <div class="col-12"><label class="form-label font-monospace small">PROMPT TEXT / QUESTION STATEMENT</label>{{ form.prompt_text }}</div>
+
+        <div class="col-md-6"><label class="form-label font-monospace small">OPTION A (For MCQ)</label>{{ form.option_a }}</div>
+        <div class="col-md-6"><label class="form-label font-monospace small">OPTION B (For MCQ)</label>{{ form.option_b }}</div>
+        <div class="col-md-6"><label class="form-label font-monospace small">OPTION C (For MCQ)</label>{{ form.option_c }}</div>
+        <div class="col-md-6"><label class="form-label font-monospace small">OPTION D (For MCQ)</label>{{ form.option_d }}</div>
+
+        <div class="col-12"><label class="form-label font-monospace small text-primary">CORRECT ANSWER (A/B/C/D or Exact Answer)</label>{{ form.correct_answer }}</div>
+
+        <div class="col-12"><label class="form-label font-monospace small">SOLUTION EXPLANATION</label>{{ form.explanation }}</div>
+        <div class="col-md-6"><label class="form-label font-monospace small">ATTACHMENT IMAGE (OPTIONAL)</label>{{ form.image }}</div>
+        <div class="col-md-6"><label class="form-label font-monospace small">TAGS</label>{{ form.tags }}</div>
+      </div>
+
+      <div class="mt-4 pt-3 border-top d-flex gap-2 justify-content-end">
+        <a href="{% url 'question_list' %}" class="btn btn-outline-secondary">Cancel</a>
+        <button type="submit" class="btn btn-glass-primary px-4"><i class="bi bi-save me-1"></i> Save Question</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

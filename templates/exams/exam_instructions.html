@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}Instructions - {{ exam.title }}{% endblock %}
+
+{% block content %}
+<div class="container" data-aos="fade-up" style="max-width: 750px;">
+  <div class="glass-card p-4 p-md-5">
+    <div class="text-center mb-4">
+      <div class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill mb-2">OFFICIAL EXAMINATION ROOM</div>
+      <h2 class="font-heading fw-bold">{{ exam.title }}</h2>
+      <div class="text-muted">{{ exam.subject.code }} - {{ exam.subject.name }}</div>
+    </div>
+
+    <!-- Exam Parameters Summary -->
+    <div class="row text-center g-3 mb-4 py-3 bg-body-tertiary rounded-3">
+      <div class="col-4 border-end">
+        <div class="small text-muted font-monospace">DURATION</div>
+        <div class="fw-bold fs-5 text-primary">{{ exam.duration_minutes }} Mins</div>
+      </div>
+      <div class="col-4 border-end">
+        <div class="small text-muted font-monospace">TOTAL MARKS</div>
+        <div class="fw-bold fs-5 text-success">{{ exam.total_marks }}</div>
+      </div>
+      <div class="col-4">
+        <div class="small text-muted font-monospace">MAX VIOLATIONS</div>
+        <div class="fw-bold fs-5 text-danger">{{ exam.max_violations }}</div>
+      </div>
+    </div>
+
+    <!-- Anti-Cheat Rules Alert -->
+    <div class="alert alert-warning border-0 rounded-3 mb-4">
+      <h6 class="fw-bold text-dark"><i class="bi bi-shield-exclamation text-danger me-2"></i> Anti-Cheating Protocol Enforced:</h6>
+      <ul class="mb-0 small">
+        <li><strong>Full Screen Mode:</strong> You must enter full screen mode to start. Exiting full screen records a violation.</li>
+        <li><strong>No Tab Switching:</strong> Switching browser tabs or minimizing the window will trigger real-time violation logs.</li>
+        <li><strong>Disqualification:</strong> Exceeding {{ exam.max_violations }} anti-cheat violations automatically disqualifies and submits your test.</li>
+        <li><strong>Negative Marking:</strong> {{ exam.negative_marking }} marks will be deducted for every wrong objective answer.</li>
+      </ul>
+    </div>
+
+    <!-- Instructions Text -->
+    <div class="mb-4">
+      <h6 class="fw-bold">Specific Instructions:</h6>
+      <div class="p-3 bg-body-tertiary rounded-3 small text-muted">
+        {{ exam.instructions|linebreaks }}
+      </div>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+      {% if exam.password %}
+      <div class="mb-4">
+        <label class="form-label font-monospace small">ENTER EXAM PASSCODE</label>
+        {{ form.password }}
+      </div>
+      {% endif %}
+
+      <div class="form-check mb-4">
+        <input type="checkbox" class="form-check-input" id="agreeCheck" required>
+        <label class="form-check-label small text-muted" for="agreeCheck">
+          I have read and agree to follow all examination rules and anti-cheating regulations.
+        </label>
+      </div>
+
+      <button type="submit" class="btn btn-glass-primary w-100 py-3 fs-5"><i class="bi bi-rocket-takeoff me-2"></i> Proceed & Launch Exam Room</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

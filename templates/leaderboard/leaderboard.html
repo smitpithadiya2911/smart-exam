@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Leaderboard & Achievement Badges{% endblock %}
+
+{% block content %}
+<div class="container-fluid" data-aos="fade-up">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="font-heading fw-bold mb-1"><i class="bi bi-trophy-fill text-warning me-2"></i> Student Leaderboard & Badges</h2>
+      <p class="text-muted mb-0">Platform rankings based on average score and qualifying achievements.</p>
+    </div>
+  </div>
+
+  <!-- 3D Shiny Achievement Badges Section -->
+  <div class="glass-card mb-4">
+    <h5 class="font-heading mb-3"><i class="bi bi-award-fill text-info me-2"></i> My Achievement Badges</h5>
+    <div class="row g-3">
+      {% for ub in user_badges %}
+      <div class="col-md-4 col-lg-3">
+        <div class="p-3 text-center rounded-4 glass-card border border-info border-opacity-25 shadow-sm animate__animated animate__pulse">
+          <div class="rounded-circle d-inline-flex p-3 mb-2" style="background-color: {{ ub.badge.color_hex }}22; color: {{ ub.badge.color_hex }}; border: 1px solid {{ ub.badge.color_hex }}44; box-shadow: 0 0 15px {{ ub.badge.color_hex }}33;">
+            <i class="bi bi-{{ ub.badge.icon_name }} fs-1"></i>
+          </div>
+          <h6 class="font-heading fw-bold text-white mb-1">{{ ub.badge.title }}</h6>
+          <div class="small mb-2" style="color: #CBD5E1 !important;">{{ ub.badge.description }}</div>
+          <span class="badge bg-success-subtle text-success">Awarded {{ ub.awarded_at|date:"d M Y" }}</span>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12 text-center text-muted py-4">
+        <i class="bi bi-award fs-2 d-block mb-2 text-info"></i>
+        Complete exams with 75%+ score to unlock 3D achievement medals & badges!
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Rankings Table -->
+  <div class="glass-card">
+    <h5 class="font-heading mb-3"><i class="bi bi-bar-chart-steps text-success me-2"></i> Top Performer Rankings</h5>
+    <div class="table-responsive">
+      <table class="table table-glass align-middle">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Candidate Name</th>
+            <th>Email</th>
+            <th>Exams Completed</th>
+            <th>Average Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in rankings %}
+          <tr {% if r.student == user.id %}style="background: rgba(0, 245, 255, 0.12) !important;"{% endif %}>
+            <td>
+              {% if forloop.counter == 1 %}<span class="badge bg-warning text-dark fs-6 font-heading fw-bold"><i class="bi bi-trophy-fill me-1"></i>1st 🥇</span>
+              {% elif forloop.counter == 2 %}<span class="badge bg-secondary text-white fs-6 font-heading fw-bold">2nd 🥈</span>
+              {% elif forloop.counter == 3 %}<span class="badge bg-danger text-white fs-6 font-heading fw-bold">3rd 🥉</span>
+              {% else %}<span class="badge bg-secondary-subtle text-secondary font-monospace">#{{ forloop.counter }}</span>{% endif %}
+            </td>
+            <td class="fw-bold text-white">{{ r.student__first_name }} {{ r.student__last_name }}</td>
+            <td style="color: #CBD5E1 !important;"><i class="bi bi-envelope me-1 text-info"></i>{{ r.student__email }}</td>
+            <td><span class="badge bg-primary-subtle text-primary">{{ r.total_exams }} Exams</span></td>
+            <td class="fw-bold text-info fs-5">{{ r.avg_score|floatformat:1 }}%</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

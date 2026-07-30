@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block public_content %}
+<div class="container min-vh-100 d-flex align-items-center justify-content-center py-5">
+  <div class="glass-card watermark-container p-4 p-md-5 shadow-lg position-relative" style="max-width: 600px; width: 100%;">
+    <!-- Background Watermark Text -->
+    <div class="watermark-text">SMART EXAM SYSTEM</div>
+
+    <div class="text-center mb-4 position-relative" style="z-index: 1;">
+      <i class="bi bi-person-badge-fill display-5 text-primary"></i>
+      <h3 class="font-heading mt-2">Student Self Registration</h3>
+      <p class="text-muted small">Create your student portal account</p>
+    </div>
+
+    <form method="post" autocomplete="off" class="position-relative" style="z-index: 1;">
+      {% csrf_token %}
+      <div class="row g-3">
+        <div class="col-md-6"><label class="form-label small">First Name</label>{{ form.first_name }}</div>
+        <div class="col-md-6"><label class="form-label small">Last Name</label>{{ form.last_name }}</div>
+        <div class="col-12"><label class="form-label small">Email Address</label>{{ form.email }}</div>
+        <div class="col-12"><label class="form-label small">Phone Number</label>{{ form.phone_number }}</div>
+
+        <div class="col-md-6">
+          <label class="form-label small">Password</label>
+          <div class="position-relative">
+            {{ form.password }}
+            <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y me-2 text-muted p-1" onclick="togglePassword(null, this)" style="text-decoration: none; z-index: 100; cursor: pointer;" title="Toggle password visibility">
+              <i class="bi bi-eye-fill fs-5"></i>
+            </button>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small">Confirm Password</label>
+          <div class="position-relative">
+            {{ form.confirm_password }}
+            <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y me-2 text-muted p-1" onclick="togglePassword(null, this)" style="text-decoration: none; z-index: 100; cursor: pointer;" title="Toggle password visibility">
+              <i class="bi bi-eye-fill fs-5"></i>
+            </button>
+          </div>
+        </div>
+
+
+      </div>
+
+      <button type="submit" class="btn btn-glass-primary w-100 py-2.5 mt-4">Register Student Account</button>
+      
+      <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+        <a href="{% url 'login' %}" class="small text-decoration-none text-primary"><i class="bi bi-box-arrow-in-right me-1"></i> Already have an account? Sign in</a>
+        <a href="{% url 'forgot_password' %}" class="small text-decoration-none text-muted"><i class="bi bi-key me-1"></i> Forgot Password?</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,135 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<style>
+  #login-form .form-row {
+    padding: 10px 0;
+  }
+  .password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .password-wrapper input {
+    padding-right: 40px !important;
+    box-sizing: border-box;
+    width: 100%;
+  }
+  .toggle-password-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    padding: 4px 8px;
+    font-size: 1.1rem;
+    z-index: 10;
+  }
+  .toggle-password-btn:hover {
+    color: #222;
+  }
+</style>
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} login{% endblock %}
+
+{% block usertools %}{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block nav-sidebar %}{% endblock %}
+
+{% block content_title %}{% endblock %}
+
+{% block nav-breadcrumbs %}{% endblock %}
+
+{% block content %}
+{% if form.errors and not form.non_field_errors %}
+<p class="errornote">
+{% if form.errors.items|length == 1 %}{% translate "Please correct the error below." %}{% else %}{% translate "Please correct the errors below." %}{% endif %}
+</p>
+{% endif %}
+
+{% if form.non_field_errors %}
+{% for error in form.non_field_errors %}
+<p class="errornote">
+    {{ error }}
+</p>
+{% endfor %}
+{% endif %}
+
+<div id="content-main">
+{% if user.is_authenticated %}
+<p class="errornote">
+{% blocktranslate trimmed with username=user.get_username %}
+    You are authenticated as {{ username }}, but are not authorized to
+    access this page. Would you like to login to a different account?
+{% endblocktranslate %}
+</p>
+{% endif %}
+
+<form action="{{ app_path }}" method="post" id="login-form" autocomplete="off">{% csrf_token %}
+  <!-- Dummy inputs to prevent browser credentials autofill -->
+  <input type="text" name="prevent_autofill_username" style="display:none !important;" aria-hidden="true" tabindex="-1">
+  <input type="password" name="prevent_autofill_password" style="display:none !important;" aria-hidden="true" tabindex="-1">
+
+  <div class="form-row">
+    {{ form.username.errors }}
+    <label for="id_username" class="required">{% translate 'Email:' %}</label>
+    <input type="email" name="username" id="id_username" placeholder="Enter admin email" autocomplete="off" value="" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+  </div>
+
+  <div class="form-row">
+    {{ form.password.errors }}
+    <label for="id_password" class="required">{% translate 'Password:' %}</label>
+    <div class="password-wrapper" style="display: flex; align-items: center; width: 100%;">
+      <input type="password" name="password" id="id_password" placeholder="Enter admin password" autocomplete="new-password" value="" required style="flex: 1; padding: 8px 12px; border: 1px solid #ccc; border-right: none; border-top-left-radius: 4px; border-bottom-left-radius: 4px;">
+      <button type="button" class="toggle-password-btn" onclick="toggleAdminPassword(this)" title="Toggle password visibility" style="background: #f1f5f9; border: 1px solid #ccc; border-left: none; border-top-right-radius: 4px; border-bottom-right-radius: 4px; padding: 8px 12px; cursor: pointer; color: #475569;">
+        <i class="bi bi-eye-fill"></i>
+      </button>
+    </div>
+    <input type="hidden" name="next" value="{{ next }}">
+  </div>
+
+  {% url 'admin_password_reset' as password_reset_url %}
+  {% if password_reset_url %}
+  <div class="password-reset-link" style="margin-top: 8px;">
+    <a href="{{ password_reset_url }}">{% translate 'Forgotten your password or username?' %}</a>
+  </div>
+  {% endif %}
+
+  <div class="submit-row" style="margin-top: 15px;">
+    <input type="submit" value="{% translate 'Log in' %}">
+  </div>
+</form>
+</div>
+
+<script>
+  function toggleAdminPassword(btn) {
+    var input = document.getElementById('id_password');
+    if (input) {
+      var isPassword = (input.type === 'password');
+      input.type = isPassword ? 'text' : 'password';
+      var icon = btn.querySelector('i') || btn;
+      if (icon) {
+        icon.className = isPassword ? 'bi bi-eye-slash-fill' : 'bi bi-eye-fill';
+      }
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const uInput = document.getElementById('id_username');
+    const pInput = document.getElementById('id_password');
+    if (uInput && uInput.value === 'admin') uInput.value = '';
+    if (pInput) pInput.value = '';
+  });
+</script>
+{% endblock %}
+
+

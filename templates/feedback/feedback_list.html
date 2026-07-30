@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Feedback & Reviews - EdTech System{% endblock %}
+
+{% block content %}
+<div class="container-fluid" data-aos="fade-up">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="font-heading fw-bold mb-1"><i class="bi bi-chat-square-quote-fill text-info me-2"></i> Feedback & Course Reviews</h2>
+      <p class="text-muted mb-0">Student & teacher course reviews, platform feedback, and moderation system.</p>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Reviews List -->
+    <div class="col-lg-7">
+      <div class="glass-card">
+        <h5 class="font-heading mb-3"><i class="bi bi-stars text-warning me-2"></i> Community Reviews</h5>
+        {% for fb in feedbacks %}
+        <div class="p-3 mb-3 rounded-4 glass-card border border-info border-opacity-25 shadow-sm">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="fw-bold text-white"><i class="bi bi-person-circle text-info me-2"></i>{{ fb.user.get_full_name }}</span>
+            <span class="text-warning fs-6">
+              {% if fb.rating >= 1 %}★{% endif %}{% if fb.rating >= 2 %}★{% endif %}{% if fb.rating >= 3 %}★{% endif %}{% if fb.rating >= 4 %}★{% endif %}{% if fb.rating >= 5 %}★{% endif %}
+            </span>
+          </div>
+          <div class="small mb-2" style="color: #CBD5E1 !important;"><span class="badge bg-primary-subtle text-primary me-2">{{ fb.get_feedback_type_display }}</span><i class="bi bi-calendar-event me-1"></i>{{ fb.created_at|date:"d M Y" }}</div>
+          <p class="mb-0 text-white" style="line-height: 1.6;">{{ fb.comments }}</p>
+
+          {% if user.role == 'SUPER_ADMIN' or user.is_superuser %}
+          <div class="mt-2 text-end">
+            <a href="{% url 'toggle_feedback_approval' fb.id %}" class="btn-action-view">
+              {% if fb.is_approved %}<i class="bi bi-eye-slash me-1"></i>Hide Review{% else %}<i class="bi bi-check2-circle me-1"></i>Approve Review{% endif %}
+            </a>
+          </div>
+          {% endif %}
+        </div>
+        {% empty %}
+        <div class="text-center text-muted py-4">No reviews submitted yet. Be the first to leave feedback!</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Submit Feedback Form -->
+    <div class="col-lg-5">
+      <div class="glass-card">
+        <h5 class="font-heading mb-3"><i class="bi bi-chat-left-text-fill text-info me-2"></i> Leave Feedback</h5>
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-3"><label class="form-label small fw-semibold text-info">Feedback Type</label>{{ form.feedback_type }}</div>
+          <div class="mb-3"><label class="form-label small fw-semibold text-info">Associated Exam (Optional)</label>{{ form.exam }}</div>
+          <div class="mb-3"><label class="form-label small fw-semibold text-info">Rating (1 to 5 Stars)</label>{{ form.rating }}</div>
+          <div class="mb-3"><label class="form-label small fw-semibold text-info">Comments</label>{{ form.comments }}</div>
+          <button type="submit" class="btn btn-glass-primary w-100"><i class="bi bi-send-fill me-1"></i> Submit Review</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

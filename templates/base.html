@@ -1,0 +1,287 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="{% if user.is_authenticated and user.dark_mode %}dark{% else %}dark{% endif %}">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Smart Online Examination & Learning Analytics System{% endblock %}</title>
+  <link rel="icon" href="data:,">
+
+  <!-- Google Fonts: Orbitron, Rajdhani, Inter, Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <!-- Bootstrap 5 CSS & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- AOS & Animate.css -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+  <!-- Custom Cyberpunk Glassmorphism CSS -->
+  <link rel="stylesheet" href="{% static 'css/glassmorphic.css' %}?v=1.0.3">
+
+  {% block extra_css %}{% endblock %}
+  <style>
+    .hover-search-item {
+      background: transparent;
+      transition: background-color 0.25s ease;
+    }
+
+    .hover-search-item:hover {
+      background: rgba(0, 245, 255, 0.15) !important;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Cyberpunk Fullscreen Loader Overlay -->
+  <div id="cyber-page-loader">
+    <div class="cyber-spinner"></div>
+    <div class="mt-3 cyber-subtitle text-uppercase" style="color: #00F5FF; letter-spacing: 3px; font-size: 0.9rem;">
+      INITIALIZING CYBER CORE...</div>
+  </div>
+
+  <!-- Ambient 60FPS Cyber Particle & Grid Canvas -->
+  <canvas id="cyber-particle-canvas"></canvas>
+
+  {% if user.is_authenticated %}
+  <div class="d-flex min-vh-100 position-relative" style="z-index: 1;">
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar">
+      <div class="app-sidebar-content p-3 d-flex flex-column justify-content-between min-vh-100">
+        <div>
+          <a href="{% url 'dashboard' %}" class="d-flex align-items-center gap-3 mb-4 text-decoration-none px-2">
+            <div class="rounded-circle p-2 d-flex align-items-center justify-content-center"
+              style="background: rgba(0,245,255,0.15); border: 1px solid rgba(0,245,255,0.4); box-shadow: 0 0 15px rgba(0,245,255,0.4);">
+              <i class="bi bi-mortarboard-fill fs-3" style="color: #00F5FF;"></i>
+            </div>
+            <span class="fs-5 cyber-title gradient-text-cyan">EdTech Core</span>
+          </a>
+
+          <div class="nav flex-column">
+            <a href="{% url 'dashboard' %}"
+              class="nav-link-glass {% if request.resolver_match.url_name == 'dashboard' or 'dashboard' in request.path %}active{% endif %}">
+              <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+
+            {% if user.role == 'SUPER_ADMIN' or user.is_superuser %}
+            <div class="text-uppercase small cyber-subtitle text-muted px-3 mt-3 mb-1"
+              style="color: rgba(0,245,255,0.7) !important;">Academic Admin</div>
+            <a href="{% url 'department_list' %}"
+              class="nav-link-glass {% if 'department' in request.path %}active{% endif %}"><i
+                class="bi bi-building"></i> Departments</a>
+            <a href="{% url 'course_list' %}"
+              class="nav-link-glass {% if 'course' in request.path %}active{% endif %}"><i
+                class="bi bi-journal-bookmark"></i> Courses</a>
+            <a href="{% url 'semester_list' %}"
+              class="nav-link-glass {% if 'semester' in request.path %}active{% endif %}"><i
+                class="bi bi-calendar3"></i> Semesters</a>
+            <a href="{% url 'subject_list' %}"
+              class="nav-link-glass {% if 'subject' in request.path %}active{% endif %}"><i class="bi bi-book"></i>
+              Subjects</a>
+            <a href="{% url 'teacher_list' %}"
+              class="nav-link-glass {% if 'teacher' in request.path %}active{% endif %}"><i
+                class="bi bi-person-workspace"></i> Teachers</a>
+            <a href="{% url 'student_list' %}"
+              class="nav-link-glass {% if 'student' in request.path and 'upcoming' not in request.path %}active{% endif %}"><i
+                class="bi bi-people"></i> Students</a>
+            {% endif %}
+
+            {% if user.role == 'TEACHER' or user.role == 'SUPER_ADMIN' or user.is_superuser %}
+            <div class="text-uppercase small cyber-subtitle text-muted px-3 mt-3 mb-1"
+              style="color: rgba(0,245,255,0.7) !important;">Examination</div>
+            <a href="{% url 'question_list' %}"
+              class="nav-link-glass {% if 'question' in request.path %}active{% endif %}"><i
+                class="bi bi-patch-question"></i> Question Bank</a>
+            <a href="{% url 'exam_list' %}"
+              class="nav-link-glass {% if 'exam' in request.path and 'upcoming' not in request.path %}active{% endif %}"><i
+                class="bi bi-card-checklist"></i> Manage Exams</a>
+            <a href="{% url 'reports_dashboard' %}"
+              class="nav-link-glass {% if 'reports' in request.path %}active{% endif %}"><i
+                class="bi bi-file-earmark-bar-graph"></i> Reports & Analytics</a>
+            {% endif %}
+
+            {% if user.role == 'STUDENT' %}
+            <div class="text-uppercase small cyber-subtitle text-muted px-3 mt-3 mb-1"
+              style="color: rgba(0,245,255,0.7) !important;">Student Portal</div>
+            <a href="{% url 'student_upcoming_exams' %}"
+              class="nav-link-glass {% if 'upcoming' in request.path %}active{% endif %}"><i
+                class="bi bi-clock-history"></i> Upcoming Exams</a>
+            <a href="{% url 'certificate_list' %}"
+              class="nav-link-glass {% if 'certificate' in request.path %}active{% endif %}"><i class="bi bi-award"></i>
+              My Certificates</a>
+            <a href="{% url 'ai_recommendations' %}"
+              class="nav-link-glass {% if 'ai' in request.path %}active{% endif %}"><i class="bi bi-cpu"></i> AI Study
+              Plan</a>
+            <a href="{% url 'leaderboard' %}"
+              class="nav-link-glass {% if 'leaderboard' in request.path %}active{% endif %}"><i
+                class="bi bi-trophy"></i> Leaderboard</a>
+            {% endif %}
+
+            <div class="text-uppercase small cyber-subtitle text-muted px-3 mt-3 mb-1"
+              style="color: rgba(0,245,255,0.7) !important;">Community</div>
+            <a href="{% url 'feedback_list' %}"
+              class="nav-link-glass {% if 'feedback' in request.path %}active{% endif %}"><i
+                class="bi bi-chat-square-quote"></i> Feedback</a>
+            <a href="{% url 'notification_list' %}"
+              class="nav-link-glass {% if 'notification' in request.path %}active{% endif %}"><i class="bi bi-bell"></i>
+              Notifications</a>
+          </div>
+        </div>
+
+        <!-- User Profile & Logout Bottom Card -->
+        <div class="sidebar-logout-card mt-auto mb-1">
+          <div class="d-flex align-items-center gap-3 mb-2">
+            {% if user.avatar %}
+            <img src="{{ user.avatar.url }}" class="rounded-circle border border-info" width="42" height="42"
+              alt="Avatar" style="box-shadow: 0 0 12px rgba(0,245,255,0.4);">
+            {% else %}
+            <div class="rounded-circle text-dark d-flex align-items-center justify-content-center fw-bold fs-5"
+              style="width:42px; height:42px; background: linear-gradient(135deg, #00F5FF, #7B3FFB); box-shadow: 0 0 15px rgba(0,245,255,0.5); min-width:42px;">
+              {{ user.first_name|slice:":1"|default:user.email|slice:":1"|upper }}
+            </div>
+            {% endif %}
+            <div class="lh-1 overflow-hidden">
+              <div class="fw-bold text-white text-truncate mb-1" style="font-size:0.95rem;">
+                {% if user.get_full_name %}
+                  {{ user.get_full_name }}
+                {% else %}
+                  {{ user.email }}
+                {% endif %}
+              </div>
+              <div class="user-role-badge">
+                <span class="status-dot-pulse"></span>
+                <span>{{ user.get_role_display|upper }}</span>
+              </div>
+            </div>
+          </div>
+
+
+          <a href="{% url 'logout' %}"
+            class="btn-cyber-logout w-100 d-flex align-items-center justify-content-center gap-2 mt-2"
+            title="Safely Logout Session">
+            <i class="bi bi-power fs-5"></i>
+            <span>LOGOUT SESSION</span>
+          </a>
+        </div>
+      </div>
+    </aside>
+
+
+
+    <!-- Main Content Area -->
+    <div class="flex-grow-1 d-flex flex-column">
+      <!-- Top Navbar -->
+      <header
+        class="p-3 border-bottom border-secondary border-opacity-25 d-flex align-items-center justify-content-between glass-card rounded-0">
+        <div class="d-flex align-items-center gap-3">
+          <div class="position-relative" id="global-search-container">
+            <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+            <input type="text" id="global-search-input" class="form-control glass-input ps-5"
+              placeholder="Search exams, courses, system..." style="width: 320px;" autocomplete="off">
+            <div id="global-search-results" class="position-absolute w-100 mt-2 glass-card border-0 shadow d-none"
+              style="z-index: 1050; max-height: 300px; overflow-y: auto; background: rgba(10, 13, 26, 0.95); border: 1px solid rgba(0, 245, 255, 0.25) !important;">
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+          <!-- Notification Bell -->
+          <a href="{% url 'notification_list' %}"
+            class="position-relative text-decoration-none p-2 rounded-circle glass-card border-0"
+            style="background: rgba(255,255,255,0.05);">
+            <i class="bi bi-bell fs-5" style="color: #00F5FF;"></i>
+            {% if unread_notifications_count > 0 %}
+            <span
+              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-dark">
+              {{ unread_notifications_count }}
+            </span>
+            {% endif %}
+          </a>
+
+          <!-- Dark Mode Toggle -->
+          <button id="dark-mode-toggle" class="dark-toggle-btn" title="Toggle Cyber Theme">
+            <i id="theme-icon"
+              class="bi {% if user.dark_mode %}bi-sun-fill text-warning{% else %}bi-moon-stars-fill style='color: #00F5FF;'{% endif %}"></i>
+          </button>
+
+          <!-- API Docs Link -->
+          <a href="/api/docs/" target="_blank" class="btn btn-sm btn-glass-primary py-1 px-3"
+            title="Open Swagger API Documentation" style="font-size: 0.85rem;">
+            <i class="bi bi-code-slash me-1"></i> API DOCS
+          </a>
+        </div>
+      </header>
+
+      <!-- Main Body Container -->
+      <main class="p-4 flex-grow-1">
+        <!-- Toast / Django Messages Container -->
+        <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1080;">
+          {% if messages %}
+          {% for message in messages %}
+          <div
+            class="toast toast-cyber toast-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} align-items-center show animate__animated animate__slideInRight mb-3"
+            role="alert">
+            <div class="d-flex align-items-center justify-content-between gap-3">
+              <div class="d-flex align-items-center gap-3">
+                {% if message.tags == 'error' or message.tags == 'danger' %}
+                <i class="bi bi-exclamation-triangle-fill text-danger fs-4"></i>
+                {% elif message.tags == 'warning' %}
+                <i class="bi bi-exclamation-circle-fill text-warning fs-4"></i>
+                {% else %}
+                <i class="bi bi-check-circle-fill text-info fs-4" style="color: #00F5FF !important;"></i>
+                {% endif %}
+                <div class="toast-body p-0 fw-semibold text-white font-mono"
+                  style="font-size: 0.95rem; line-height: 1.4;">{{ message }}</div>
+              </div>
+              <button type="button" class="btn-close btn-close-white opacity-75" data-bs-dismiss="toast"
+                aria-label="Close"></button>
+            </div>
+            <div class="toast-cyber-progress"></div>
+          </div>
+          {% endfor %}
+          {% endif %}
+        </div>
+
+
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+  {% else %}
+  <!-- Public / Authentication Layout -->
+  <div class="position-relative" style="z-index: 1;">
+    {% block public_content %}{% endblock %}
+  </div>
+  {% endif %}
+
+  <!-- Core JavaScript Dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+  <!-- Project Scripts -->
+  <script src="{% static 'js/cyber_particles.js' %}"></script>
+  <script src="{% static 'js/micro_interactions.js' %}"></script>
+  <script src="{% static 'js/theme.js' %}"></script>
+  <script src="{% static 'js/three_hero.js' %}"></script>
+  <script src="{% static 'js/three_accent.js' %}"></script>
+  <script src="{% static 'js/charts_analytics.js' %}"></script>
+
+  <script>
+    AOS.init({ duration: 800, once: true });
+  </script>
+
+  {% block extra_js %}{% endblock %}
+</body>
+
+</html>

@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}Examination Portal - EdTech System{% endblock %}
+
+{% block content %}
+<div class="container-fluid" data-aos="fade-up">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="font-heading fw-bold mb-1"><i class="bi bi-clock-history text-info me-2"></i> Online Examination Room</h2>
+      <p class="text-muted mb-0">Active and upcoming examination papers assigned to your course term.</p>
+    </div>
+  </div>
+
+  <!-- Active Exams Ready to Take -->
+  <div class="glass-card mb-4">
+    <h5 class="font-heading mb-3 text-success"><i class="bi bi-play-circle-fill me-2"></i> Active Examinations (Open Now)</h5>
+    <div class="row g-4">
+      {% for exam in active_exams %}
+      <div class="col-md-6 col-lg-4">
+        <div class="p-4 rounded-4 glass-card border border-info border-opacity-25 shadow-lg position-relative overflow-hidden">
+          <div class="position-absolute top-0 end-0 m-3">
+            <span class="badge bg-success-subtle text-success animate__animated animate__pulse animate__infinite"><i class="bi bi-record-fill me-1 text-danger"></i>LIVE NOW</span>
+          </div>
+          <h5 class="font-heading fw-bold text-white text-truncate mb-1 pe-5">{{ exam.title }}</h5>
+          <div class="small mb-3" style="color: #CBD5E1 !important;"><i class="bi bi-book me-1 text-info"></i>{{ exam.subject.code }} - {{ exam.subject.name }}</div>
+
+          <div class="d-flex justify-content-between small mb-3 border-top border-secondary border-opacity-25 pt-2" style="color: #CBD5E1 !important;">
+            <span><i class="bi bi-clock me-1 text-info"></i> {{ exam.duration_minutes }} Mins</span>
+            <span><i class="bi bi-award me-1 text-warning"></i> {{ exam.total_marks }} Marks</span>
+          </div>
+
+          {% if exam.id in attempted_exam_ids %}
+            {% for attempt in attempts %}
+              {% if attempt.exam_id == exam.id %}
+                <a href="{% url 'result_detail' attempt.id %}" class="btn btn-glass-success w-100 d-flex align-items-center justify-content-center gap-1"><i class="bi bi-eye-fill me-1"></i> View Result</a>
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            <a href="{% url 'exam_instructions' exam.id %}" class="btn btn-glass-primary w-100"><i class="bi bi-box-arrow-in-right me-1"></i> Start Examination</a>
+          {% endif %}
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12 py-4 text-center text-muted">No active live exams currently open right now. Check your schedule below.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Upcoming Scheduled Papers -->
+  <div class="glass-card">
+    <h5 class="font-heading mb-3"><i class="bi bi-calendar3 text-info me-2"></i> Scheduled Upcoming Exams</h5>
+    <div class="table-responsive">
+      <table class="table table-glass align-middle">
+        <thead>
+          <tr>
+            <th>Exam Title</th>
+            <th>Subject</th>
+            <th>Schedule Start</th>
+            <th>Duration</th>
+            <th>Total Marks</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for exam in upcoming_exams %}
+          <tr>
+            <td class="fw-bold text-white">{{ exam.title }}</td>
+            <td><code><i class="bi bi-book me-1"></i>{{ exam.subject.code }}</code></td>
+            <td class="small" style="color: #CBD5E1 !important;"><i class="bi bi-calendar-event me-1 text-info"></i>{{ exam.start_time|date:"d M Y, H:i" }}</td>
+            <td><span class="badge bg-primary-subtle text-primary">{{ exam.duration_minutes }} Mins</span></td>
+            <td><span class="badge bg-info-subtle text-info">{{ exam.total_marks }} Marks</span></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="text-center text-muted py-4">No upcoming scheduled exams.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

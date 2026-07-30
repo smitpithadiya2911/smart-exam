@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}System Access Logs - EdTech System{% endblock %}
+
+{% block content %}
+<div class="container-fluid" data-aos="fade-up">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="font-heading fw-bold mb-1"><i class="bi bi-shield-lock-fill text-info me-2"></i> Login Audit History</h2>
+      <p class="text-muted mb-0">System security access logs, authentication attempts, and IP tracing.</p>
+    </div>
+  </div>
+
+  <div class="glass-card">
+    <div class="table-responsive">
+      <table class="table table-glass align-middle">
+        <thead>
+          <tr>
+            <th>User Email</th>
+            <th>IP Address</th>
+            <th>Status</th>
+            <th>User Agent</th>
+            <th>Timestamp</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in logs %}
+          <tr>
+            <td class="fw-bold text-white"><i class="bi bi-envelope me-1 text-info"></i>{{ log.email_attempted }}</td>
+            <td><code><i class="bi bi-hdd-network me-1"></i>{{ log.ip_address }}</code></td>
+            <td>
+              {% if log.success %}
+                <span class="badge bg-success-subtle text-success"><i class="bi bi-shield-check me-1"></i>Success</span>
+              {% else %}
+                <span class="badge bg-danger-subtle text-danger"><i class="bi bi-shield-x me-1"></i>Failed</span>
+              {% endif %}
+            </td>
+            <td class="small" style="color: #CBD5E1 !important; max-width: 280px;">{{ log.user_agent|truncatechars:65 }}</td>
+            <td class="small" style="color: #CBD5E1 !important;"><i class="bi bi-clock me-1 text-info"></i>{{ log.timestamp|date:"d M Y, H:i:s" }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="text-center text-muted py-4">No access logs recorded yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

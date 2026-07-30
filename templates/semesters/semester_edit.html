@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Edit Semester - Sem {{ semester.number }}{% endblock %}
+{% block content %}
+<div class="container" data-aos="fade-up" style="max-width: 600px;">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="font-heading fw-bold mb-0">Edit Semester Schedule</h2>
+    <a href="{% url 'semester_list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i> Back to List</a>
+  </div>
+
+  <div class="glass-card">
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label font-monospace small">COURSE PROGRAM</label>
+        {{ form.course }}
+      </div>
+      <div class="mb-3">
+        <label class="form-label font-monospace small">SEMESTER NUMBER</label>
+        {{ form.number }}
+      </div>
+      <div class="mb-3">
+        <label class="form-label font-monospace small">SEMESTER NAME</label>
+        {{ form.name }}
+      </div>
+      <div class="row mb-3">
+        <div class="col-md-6"><label class="form-label font-monospace small">START DATE</label>{{ form.start_date }}</div>
+        <div class="col-md-6"><label class="form-label font-monospace small">END DATE</label>{{ form.end_date }}</div>
+      </div>
+      <div class="d-flex gap-2 justify-content-end pt-3 border-top">
+        <a href="{% url 'semester_list' %}" class="btn btn-outline-secondary">Cancel</a>
+        <button type="submit" class="btn btn-glass-primary px-4"><i class="bi bi-save me-1"></i> Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

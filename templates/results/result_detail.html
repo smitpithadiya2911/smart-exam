@@ -1,0 +1,306 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Scorecard - {{ exam.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .review-card-correct {
+    background: rgba(16, 185, 129, 0.08) !important;
+    border-color: rgba(16, 185, 129, 0.25) !important;
+  }
+  .review-card-incorrect {
+    background: rgba(239, 68, 68, 0.08) !important;
+    border-color: rgba(239, 68, 68, 0.25) !important;
+  }
+  .review-card-skipped {
+    background: rgba(148, 163, 184, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+  .option-correct {
+    background: rgba(16, 185, 129, 0.18) !important;
+    border-color: #10B981 !important;
+    color: #34D399 !important;
+  }
+  .option-incorrect {
+    background: rgba(239, 68, 68, 0.18) !important;
+    border-color: #EF4444 !important;
+    color: #F87171 !important;
+  }
+  .option-default {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: #E2E8F0 !important;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container" id="scorecard-capture-area" data-aos="fade-up" style="max-width: 950px;">
+  <!-- Header Card -->
+  <div class="glass-card mb-4 text-center p-4">
+    <div class="badge {% if attempt.is_passed %}bg-success-subtle text-success{% else %}bg-danger-subtle text-danger{% endif %} fs-6 mb-3 px-3 py-2">
+      {% if attempt.is_passed %}<i class="bi bi-check-circle-fill me-1"></i> EXAMINATION QUALIFIED (PASSED){% else %}<i class="bi bi-x-circle-fill me-1"></i> EXAMINATION FAILED{% endif %}
+    </div>
+    <h2 class="font-heading fw-bold text-white mb-1">{{ exam.title }}</h2>
+    <div class="mb-3" style="color: #CBD5E1 !important;"><i class="bi bi-book me-1 text-info"></i>{{ exam.subject.code }} - {{ exam.subject.name }}</div>
+
+    <div class="d-flex justify-content-center gap-3">
+      <a href="{% url 'download_result_pdf' attempt.id %}" class="btn btn-glass-primary"><i class="bi bi-file-earmark-pdf me-1"></i> Download PDF Scorecard</a>
+      {% if attempt.is_passed and attempt.certificate %}
+      <a href="{% url 'certificate_detail' attempt.certificate.certificate_uuid %}" class="btn btn-action-view"><i class="bi bi-award me-1"></i> View QR Certificate</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- 4 Stat Summary Cards -->
+  <div class="row g-3 mb-4 text-center">
+    <div class="col-md-3">
+      <div class="glass-card">
+        <div class="small font-monospace text-info">MARKS OBTAINED</div>
+        <div class="fs-2 font-heading fw-bold text-white">{{ attempt.total_score }} / {{ exam.total_marks }}</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="glass-card">
+        <div class="small font-monospace text-info">PERCENTAGE & GRADE</div>
+        <div class="fs-2 font-heading fw-bold text-info">{{ attempt.percentage }}% ({{ grade }})</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="glass-card">
+        <div class="small font-monospace text-info">PLATFORM RANK</div>
+        <div class="fs-2 font-heading fw-bold text-warning">#{{ rank }}</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="glass-card">
+        <div class="small font-monospace text-info">TIME TAKEN</div>
+        <div class="fs-2 font-heading fw-bold text-success">{{ time_taken_min }} Mins</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Personalised Study Planner Update -->
+  <div class="glass-card mb-4">
+    <h5 class="font-heading mb-3 text-white"><i class="bi bi-cpu-fill text-accent me-2" style="color: #00F5FF;"></i> AI Personalised Study Planner Update</h5>
+    {% for item in planner_data.subject_progress %}
+      {% if item.subject.id == exam.subject.id %}
+        <div class="p-3 rounded-3 border border-secondary border-opacity-25" style="background: rgba(255, 255, 255, 0.02);">
+          <div class="row align-items-center g-3">
+            <div class="col-md-8">
+              <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
+                <span class="fs-6 fw-bold text-white">Subject: {{ exam.subject.name }} ({{ exam.subject.code }})</span>
+                <span class="badge {% if 'Critical' in item.priority %}bg-danger{% elif 'Moderate' in item.priority %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                  {{ item.priority }}
+                </span>
+              </div>
+              <div class="text-light small mb-3">
+                <strong>AI Recommendation:</strong> {{ item.suggestion }}
+              </div>
+              <div class="d-flex justify-content-between align-items-center mb-1 small text-muted">
+                <span>Subject Proficiency Level:</span>
+                <span class="fw-bold text-info">{{ item.progress_val }}%</span>
+              </div>
+              <div class="progress" style="height: 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px;">
+                <div class="progress-bar {% if item.progress_val < 50 %}bg-danger{% elif item.progress_val < 75 %}bg-warning{% else %}bg-success{% endif %}" 
+                     role="progressbar" 
+                     style="width: {{ item.progress_val }}%; border-radius: 4px;" 
+                     aria-valuenow="{{ item.progress_val }}" 
+                     aria-valuemin="0" 
+                     aria-valuemax="100">
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4 text-md-end text-start">
+              <div class="text-muted small mb-2"><i class="bi bi-info-circle me-1"></i> Routine adjusted based on this attempt</div>
+              <div class="d-flex flex-column gap-2">
+                <a href="{% url 'ai_recommendations' %}" class="btn btn-glass-primary w-100 btn-sm"><i class="bi bi-cpu me-1"></i> Open AI Study Planner</a>
+                <a href="{% url 'download_timetable' %}" class="btn btn-action-view w-100 btn-sm text-center"><i class="bi bi-download me-1"></i> Download PDF Routine</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <!-- Breakdown Table -->
+  <div class="glass-card">
+    <h5 class="font-heading mb-3"><i class="bi bi-list-check text-info me-2"></i> Question-wise Performance Breakdown</h5>
+    <div class="table-responsive">
+      <table class="table table-glass align-middle">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Question Prompt</th>
+            <th>Your Answer</th>
+            <th>Status</th>
+            <th>Marks</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ans in answers %}
+          <tr>
+            <td><span class="badge bg-secondary-subtle text-secondary font-monospace">{{ forloop.counter }}</span></td>
+            <td class="small fw-bold text-white text-wrap" style="max-width: 350px;">{{ ans.question.prompt_text|truncatechars:85 }}</td>
+            <td>
+              {% if ans.is_correct %}
+                <code class="code-emerald">{{ ans.selected_option|default:ans.text_response|default:"Skipped" }}</code>
+              {% elif ans.selected_option or ans.text_response %}
+                <code class="code-rose">{{ ans.selected_option|default:ans.text_response }}</code>
+              {% else %}
+                <span class="badge bg-secondary-subtle text-secondary">Skipped</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if ans.is_correct %}
+                <span class="badge bg-success-subtle text-success"><i class="bi bi-check-lg me-1"></i> Correct</span>
+              {% elif ans.selected_option or ans.text_response %}
+                <span class="badge bg-danger-subtle text-danger"><i class="bi bi-x-lg me-1"></i> Wrong (-{{ exam.negative_marking }})</span>
+              {% else %}
+                <span class="badge bg-secondary-subtle text-secondary">Skipped</span>
+              {% endif %}
+            </td>
+            <td class="fw-bold text-info">{{ ans.marks_obtained }} / {{ ans.scaled_max_marks }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Detailed Question Review -->
+  <div class="glass-card mt-4 p-4">
+    <h4 class="font-heading mb-4 text-white"><i class="bi bi-question-circle text-info me-2"></i> Detailed Question Review</h4>
+    
+    <div class="d-flex flex-column gap-4">
+      {% for ans in answers %}
+      <div class="p-4 rounded-3 border {% if ans.is_correct %}review-card-correct{% elif ans.selected_option or ans.text_response %}review-card-incorrect{% else %}review-card-skipped{% endif %}">
+        <!-- Question Header Info -->
+        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25">
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-secondary-subtle text-light font-monospace fs-6">Q{{ forloop.counter }}</span>
+            <span class="badge {% if ans.is_correct %}bg-success text-white{% elif ans.selected_option or ans.text_response %}bg-danger text-white{% else %}bg-secondary text-white{% endif %} fs-7">
+              {% if ans.is_correct %}
+                <i class="bi bi-check-circle-fill me-1"></i> CORRECT
+              {% elif ans.selected_option or ans.text_response %}
+                <i class="bi bi-x-circle-fill me-1"></i> INCORRECT
+              {% else %}
+                <i class="bi bi-slash-circle me-1"></i> SKIPPED
+              {% endif %}
+            </span>
+          </div>
+          <span class="small font-monospace" style="color: #CBD5E1;">Score: {{ ans.marks_obtained }} / {{ ans.scaled_max_marks }}</span>
+        </div>
+
+        <!-- Question Prompt -->
+        <div class="fs-5 fw-semibold text-white mb-3 text-wrap" style="line-height: 1.6;">
+          {{ ans.question.prompt_text|linebreaksbr }}
+        </div>
+
+        {% if ans.question.question_type == 'MCQ' or ans.question.question_type == 'TF' %}
+        <!-- Options List -->
+        <div class="d-flex flex-column gap-3 mb-3">
+          <!-- Option A -->
+          {% if ans.question.option_a %}
+          <div class="p-3 rounded-3 border d-flex align-items-center justify-content-between
+            {% if ans.question.correct_answer == 'A' %}
+              option-correct
+            {% elif ans.selected_option == 'A' and not ans.is_correct %}
+              option-incorrect
+            {% else %}
+              option-default
+            {% endif %}">
+            <span><strong>A.</strong> {{ ans.question.option_a }}</span>
+            {% if ans.question.correct_answer == 'A' %}
+              <span class="badge bg-success text-white"><i class="bi bi-check-lg me-1"></i> Correct Answer</span>
+            {% elif ans.selected_option == 'A' and not ans.is_correct %}
+              <span class="badge bg-danger text-white"><i class="bi bi-x-lg me-1"></i> Your Selection</span>
+            {% endif %}
+          </div>
+          {% endif %}
+
+          <!-- Option B -->
+          {% if ans.question.option_b %}
+          <div class="p-3 rounded-3 border d-flex align-items-center justify-content-between
+            {% if ans.question.correct_answer == 'B' %}
+              option-correct
+            {% elif ans.selected_option == 'B' and not ans.is_correct %}
+              option-incorrect
+            {% else %}
+              option-default
+            {% endif %}">
+            <span><strong>B.</strong> {{ ans.question.option_b }}</span>
+            {% if ans.question.correct_answer == 'B' %}
+              <span class="badge bg-success text-white"><i class="bi bi-check-lg me-1"></i> Correct Answer</span>
+            {% elif ans.selected_option == 'B' and not ans.is_correct %}
+              <span class="badge bg-danger text-white"><i class="bi bi-x-lg me-1"></i> Your Selection</span>
+            {% endif %}
+          </div>
+          {% endif %}
+
+          <!-- Option C -->
+          {% if ans.question.option_c %}
+          <div class="p-3 rounded-3 border d-flex align-items-center justify-content-between
+            {% if ans.question.correct_answer == 'C' %}
+              option-correct
+            {% elif ans.selected_option == 'C' and not ans.is_correct %}
+              option-incorrect
+            {% else %}
+              option-default
+            {% endif %}">
+            <span><strong>C.</strong> {{ ans.question.option_c }}</span>
+            {% if ans.question.correct_answer == 'C' %}
+              <span class="badge bg-success text-white"><i class="bi bi-check-lg me-1"></i> Correct Answer</span>
+            {% elif ans.selected_option == 'C' and not ans.is_correct %}
+              <span class="badge bg-danger text-white"><i class="bi bi-x-lg me-1"></i> Your Selection</span>
+            {% endif %}
+          </div>
+          {% endif %}
+
+          <!-- Option D -->
+          {% if ans.question.option_d %}
+          <div class="p-3 rounded-3 border d-flex align-items-center justify-content-between
+            {% if ans.question.correct_answer == 'D' %}
+              option-correct
+            {% elif ans.selected_option == 'D' and not ans.is_correct %}
+              option-incorrect
+            {% else %}
+              option-default
+            {% endif %}">
+            <span><strong>D.</strong> {{ ans.question.option_d }}</span>
+            {% if ans.question.correct_answer == 'D' %}
+              <span class="badge bg-success text-white"><i class="bi bi-check-lg me-1"></i> Correct Answer</span>
+            {% elif ans.selected_option == 'D' and not ans.is_correct %}
+              <span class="badge bg-danger text-white"><i class="bi bi-x-lg me-1"></i> Your Selection</span>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+        {% else %}
+        <!-- Non-MCQ type review -->
+        <div class="d-flex flex-column gap-2 mb-3">
+          <div class="p-3 rounded-3 border border-secondary border-opacity-25" style="background: rgba(255, 255, 255, 0.03); color: #E2E8F0;">
+            <strong class="text-white">Correct Answer:</strong> {{ ans.question.correct_answer }}
+          </div>
+          <div class="p-3 rounded-3 border {% if ans.is_correct %}option-correct{% else %}option-incorrect{% endif %}">
+            <strong class="text-white">Your Response:</strong> {{ ans.text_response|default:"[No Response]"|linebreaksbr }}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Explanation section -->
+        {% if ans.question.explanation %}
+        <div class="mt-3 p-3 rounded-3 border border-secondary border-opacity-50" style="background: rgba(30, 41, 59, 0.4); border-style: dashed !important;">
+          <strong class="text-white small"><i class="bi bi-lightbulb text-warning me-1"></i> Explanation / Solution:</strong>
+          <p class="mb-0 mt-1 small text-light" style="line-height: 1.5;">{{ ans.question.explanation }}</p>
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
