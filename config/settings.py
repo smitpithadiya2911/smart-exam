@@ -140,17 +140,33 @@ elif USE_MYSQL:
             }
         }
     except Exception:
+        import shutil
+        db_path = BASE_DIR / 'db.sqlite3'
+        if os.environ.get('VERCEL') == '1':
+            tmp_db_path = Path('/tmp/db.sqlite3')
+            if not tmp_db_path.exists() and db_path.exists():
+                shutil.copy2(db_path, tmp_db_path)
+            db_path = tmp_db_path
+            
         DATABASES = {
             'default': {
                 'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': BASE_DIR / 'db.sqlite3',
+                'NAME': db_path,
             }
         }
 else:
+    import shutil
+    db_path = BASE_DIR / 'db.sqlite3'
+    if os.environ.get('VERCEL') == '1':
+        tmp_db_path = Path('/tmp/db.sqlite3')
+        if not tmp_db_path.exists() and db_path.exists():
+            shutil.copy2(db_path, tmp_db_path)
+        db_path = tmp_db_path
+
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            'NAME': db_path,
         }
     }
 
