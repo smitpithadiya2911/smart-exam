@@ -244,3 +244,17 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
 }
+
+# --- VERCEL FIXES FOR LOGIN ---
+# Vercel is a serverless environment. If you are using SQLite, it will be 
+# read-only/ephemeral across requests. By default, Django stores sessions in the database.
+# To make login work without a persistent database, we store sessions in the user's cookies.
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+
+# Ensure CSRF and session cookies work properly on Vercel's HTTPS domains
+CSRF_TRUSTED_ORIGINS = ['https://*.vercel.app']
+if os.environ.get('VERCEL') == '1':
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
