@@ -4,6 +4,7 @@ URL Configuration for Smart Online Examination & Learning Analytics System.
 
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import RedirectView
 from django.conf import settings
 from django.conf.urls.static import static
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
@@ -13,6 +14,7 @@ admin.site.site_title = "Smart Exam Admin"
 admin.site.index_title = "Academic Operations & Database Management Hub"
 
 urlpatterns = [
+    path('favicon.ico', RedirectView.as_view(url='/static/images/favicon.ico', permanent=True)),
     path('admin/', admin.site.urls),
 
     path('accounts/', include('allauth.urls')),
