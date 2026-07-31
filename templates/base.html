@@ -24,7 +24,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 
   <!-- Custom Cyberpunk Glassmorphism CSS -->
-  <link rel="stylesheet" href="{% static 'css/glassmorphic.css' %}?v=1.0.3">
+  <link rel="stylesheet" href="{% static 'css/glassmorphic.css' %}?v=1.0.4">
 
   {% block extra_css %}{% endblock %}
   <style>
@@ -53,6 +53,9 @@
 
   {% if user.is_authenticated %}
   <div class="d-flex min-vh-100 position-relative" style="z-index: 1;">
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    
     <!-- Sidebar Navigation -->
     <aside class="app-sidebar">
       <div class="app-sidebar-content p-3 d-flex flex-column justify-content-between min-vh-100">
@@ -177,12 +180,17 @@
 
 
     <!-- Main Content Area -->
-    <div class="flex-grow-1 d-flex flex-column">
+    <div class="flex-grow-1 d-flex flex-column main-content-wrapper">
       <!-- Top Navbar -->
       <header
-        class="p-3 border-bottom border-secondary border-opacity-25 d-flex align-items-center justify-content-between glass-card rounded-0">
-        <div class="d-flex align-items-center gap-3">
-          <div class="position-relative" id="global-search-container">
+        class="p-3 border-bottom border-secondary border-opacity-25 d-flex align-items-center justify-content-between glass-card rounded-0 header-responsive">
+        <div class="d-flex align-items-center gap-3 header-left-actions">
+          <!-- Mobile Menu Toggle Button -->
+          <button id="mobileMenuToggle" class="btn btn-glass-primary p-2 d-lg-none" title="Toggle Menu">
+            <i class="bi bi-list fs-4 lh-1"></i>
+          </button>
+          
+          <div class="position-relative search-wrapper" id="global-search-container">
             <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
             <input type="text" id="global-search-input" class="form-control glass-input ps-5"
               placeholder="Search exams, courses, system..." style="width: 320px;" autocomplete="off">
@@ -279,6 +287,25 @@
 
   <script>
     AOS.init({ duration: 800, once: true });
+    
+    // Mobile Sidebar Toggle Logic
+    document.addEventListener('DOMContentLoaded', () => {
+      const sidebar = document.querySelector('.app-sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      const toggleBtn = document.getElementById('mobileMenuToggle');
+      
+      if(toggleBtn && sidebar && overlay) {
+        toggleBtn.addEventListener('click', () => {
+          sidebar.classList.toggle('show-sidebar');
+          overlay.classList.toggle('show');
+        });
+        
+        overlay.addEventListener('click', () => {
+          sidebar.classList.remove('show-sidebar');
+          overlay.classList.remove('show');
+        });
+      }
+    });
   </script>
 
   {% block extra_js %}{% endblock %}
