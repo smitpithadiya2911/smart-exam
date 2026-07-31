@@ -39,6 +39,9 @@
 
           <form method="post" action="{% url 'login' %}" autocomplete="off" class="position-relative" style="z-index: 1;">
             {% csrf_token %}
+            {% if request.GET.next %}
+              <input type="hidden" name="next" value="{{ request.GET.next }}">
+            {% endif %}
             <!-- Dummy inputs to prevent browser credentials autofill -->
             <input type="text" name="prevent_autofill_username" style="display:none !important;" aria-hidden="true" tabindex="-1">
             <input type="password" name="prevent_autofill_password" style="display:none !important;" aria-hidden="true" tabindex="-1">

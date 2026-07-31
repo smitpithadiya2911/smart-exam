@@ -79,6 +79,10 @@ def login_view(request):
                             request.session.set_expiry(1209600) # 2 weeks
 
                         messages.success(request, f"Welcome back, {user.first_name}!")
+                        
+                        next_url = request.POST.get('next') or request.GET.get('next')
+                        if next_url and getattr(settings, 'ALLOWED_HOSTS', None) and not next_url.startswith('//'):
+                            return redirect(next_url)
                         return redirect('dashboard')
                 else:
                     AuthService.log_login_attempt(email, None, ip, ua, False)
