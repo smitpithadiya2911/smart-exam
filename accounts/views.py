@@ -69,10 +69,14 @@ def login_view(request):
                         AuthService.log_login_attempt(email, None, ip, ua, False)
                     else:
                         login(request, user)
-                        user.last_login_ip = ip
-                        user.save(update_fields=['last_login_ip'])
-                        AuthService.log_login_attempt(email, user, ip, ua, True)
-
+                        try:
+                            user.last_login_ip = ip
+                            user.save(update_fields=['last_login_ip'])
+                            AuthService.log_login_attempt(email, user, ip, ua, True)
+                        except Exception as e:
+                            import logging
+                            logging.error(f"Failed to write login history: {e}")
+                            
                         if not remember_me:
                             request.session.set_expiry(0) # Session expires on browser close
                         else:
