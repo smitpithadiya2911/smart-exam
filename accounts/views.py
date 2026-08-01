@@ -24,8 +24,6 @@ def _get_google_context():
     }
 
 def landing_view(request):
-    if request.user.is_authenticated:
-        return redirect('dashboard')
     captcha_prompt = generate_captcha(request)
     form = LoginForm()
     ctx = {
@@ -36,8 +34,7 @@ def landing_view(request):
     return render(request, 'accounts/landing.html', ctx)
 
 def login_view(request):
-    if request.user.is_authenticated:
-        return redirect('dashboard')
+    login_error = None
 
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -87,18 +84,19 @@ def login_view(request):
                         next_url = request.POST.get('next') or request.GET.get('next')
                         if next_url and getattr(settings, 'ALLOWED_HOSTS', None) and not next_url.startswith('//'):
                             return redirect(next_url)
-                        return redirect('dashboard')
+                        return redirect('landing')
                 else:
                     AuthService.log_login_attempt(email, None, ip, ua, False)
-                    messages.error(request, "Invalid email/username or password. Default demo accounts: smitpithadiya@gmail.com (password: Smit#2911)")
+                    login_error = "Invalid email/username or password. Default demo accounts: smitpithadiya@gmail.com (password: Smit#2911)"
         else:
-            messages.error(request, "Incorrect CAPTCHA answer. Please try again.")
+            login_error = "Incorrect CAPTCHA answer. Please try again."
 
     captcha_prompt = generate_captcha(request)
     form = LoginForm(request.POST or None)
     ctx = {
         'form': form,
         'captcha_prompt': captcha_prompt,
+        'login_error': login_error,
     }
     ctx.update(_get_google_context())
     return render(request, 'accounts/landing.html', ctx)
