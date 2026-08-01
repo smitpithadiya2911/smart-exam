@@ -4,34 +4,39 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from .models import User, OTPToken, LoginHistory
+from .models import User, OTPToken, LoginHistory, RegistrationOTP
 from .forms import LoginForm, StudentRegistrationForm, ForgotPasswordForm, VerifyOTPForm, UserProfileForm
 from .services import AuthService
 from .utils import generate_captcha, get_client_ip
 from .permissions import role_required, IsSuperAdmin
 
 import json
-import urllib.request
-import urllib.parse
+import random
 from django.conf import settings
 
-def _get_google_context():
-    cid = getattr(settings, 'GOOGLE_CLIENT_ID', '')
-    is_configured = bool(cid and 'YOUR_GOOGLE_CLIENT_ID' not in cid)
-    return {
-        'google_client_id': cid,
-        'is_google_configured': is_configured
-    }
 
 def landing_view(request):
     captcha_prompt = generate_captcha(request)
     form = LoginForm()
+    reg_form = StudentRegistrationForm()
+
+    from departments.models import Department
+    from courses.models import Course
+    from semesters.models import Semester
+
+    active_tab = request.GET.get('tab', 'login')
+
     ctx = {
         'form': form,
+        'reg_form': reg_form,
         'captcha_prompt': captcha_prompt,
+        'active_tab': active_tab,
+        'departments': Department.objects.all(),
+        'courses': Course.objects.all(),
+        'semesters': Semester.objects.all(),
     }
-    ctx.update(_get_google_context())
     return render(request, 'accounts/landing.html', ctx)
+
 
 def login_view(request):
     login_error = None
@@ -93,145 +98,93 @@ def login_view(request):
 
     captcha_prompt = generate_captcha(request)
     form = LoginForm(request.POST or None)
-    ctx = {
-        'form': form,
-        'captcha_prompt': captcha_prompt,
-        'login_error': login_error,
-    }
-    ctx.update(_get_google_context())
-    return render(request, 'accounts/landing.html', ctx)
-
-def google_login_view(request):
-    if request.user.is_authenticated:
-        return redirect('dashboard')
-
-    if request.method == 'POST':
-        credential = request.POST.get('credential') or request.POST.get('id_token')
-        if not credential and request.body:
-            try:
-                data = json.loads(request.body)
-                credential = data.get('credential') or data.get('id_token')
-            except Exception:
-                pass
-
-        ip = get_client_ip(request)
-        ua = request.META.get('HTTP_USER_AGENT', '')
-
-        if not credential:
-            # Fallback handling or error
-            messages.error(request, "Google authentication credential was missing. Please try again.")
-            return redirect('landing')
-
-        email = None
-        first_name = "Google"
-        last_name = "User"
-
-        if credential.startswith('mock_'):
-            email = credential[5:].strip()
-            first_name = email.split('@')[0].capitalize()
-            last_name = "GoogleDemo"
-        else:
-            try:
-                url = f"https://oauth2.googleapis.com/tokeninfo?id_token={credential}"
-                req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-                with urllib.request.urlopen(req, timeout=8) as response:
-                    payload = json.loads(response.read().decode('utf-8'))
-                    email = payload.get('email')
-                    if payload.get('given_name'):
-                        first_name = payload.get('given_name')
-                    elif payload.get('name'):
-                        first_name = payload.get('name').split(' ')[0]
-                    if payload.get('family_name'):
-                        last_name = payload.get('family_name')
-
-                    if not email:
-                        raise ValueError("Email not present in Google token response.")
-            except Exception as e:
-                messages.error(request, "Failed to verify Google Sign-In token. Please try again.")
-                return redirect('landing')
-
-        # Check or create user
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            user = User.objects.create_user(
-                email=email,
-                password=None,
-                first_name=first_name,
-                last_name=last_name,
-                role=User.Role.STUDENT
-            )
-            from students.models import StudentProfile
-            StudentProfile.objects.create(
-                user=user,
-                roll_number=f"GGL{random_roll()}"
-            )
-
-        if not user.is_active:
-            messages.error(request, "Your account has been deactivated. Please contact support.")
-            AuthService.log_login_attempt(email, None, ip, ua, False)
-            return redirect('landing')
-
-        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-        user.last_login_ip = ip
-        user.save(update_fields=['last_login_ip'])
-        AuthService.log_login_attempt(email, user, ip, ua, True)
-
-        request.session.set_expiry(1209600) # 2 weeks session
-        messages.success(request, f"Welcome back, {user.first_name}! Logged in via Google.")
-        return redirect('dashboard')
-
-    return redirect('landing')
-
-def register_student_view(request):
-    if request.user.is_authenticated:
-        return redirect('dashboard')
-
-    if request.method == 'POST':
-        form = StudentRegistrationForm(request.POST)
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.role = User.Role.STUDENT
-            user.set_password(form.cleaned_data['password'])
-            user.save()
-
-            # Attach student profile if available
-            from students.models import StudentProfile
-            dept_id = form.cleaned_data.get('department_id')
-            course_id = form.cleaned_data.get('course_id')
-            sem_id = form.cleaned_data.get('semester_id')
-            
-            StudentProfile.objects.create(
-                user=user,
-                roll_number=f"STU{random_roll()}",
-                department_id=dept_id if dept_id else None,
-                course_id=course_id if course_id else None,
-                semester_id=sem_id if sem_id else None
-            )
-
-            messages.success(request, "Registration successful! Please login with your credentials.")
-            return redirect('login')
-    else:
-        form = StudentRegistrationForm()
+    reg_form = StudentRegistrationForm()
 
     from departments.models import Department
     from courses.models import Course
     from semesters.models import Semester
-    return render(request, 'accounts/register.html', {
+
+    ctx = {
         'form': form,
+        'reg_form': reg_form,
+        'captcha_prompt': captcha_prompt,
+        'login_error': login_error,
+        'active_tab': 'login',
         'departments': Department.objects.all(),
         'courses': Course.objects.all(),
-        'semesters': Semester.objects.all()
-    })
+        'semesters': Semester.objects.all(),
+    }
+    return render(request, 'accounts/landing.html', ctx)
 
-def random_roll():
-    import random
-    return random.randint(10000, 99999)
+
+def register_student_view(request):
+    if request.method == 'POST':
+        form = StudentRegistrationForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            phone_number = form.cleaned_data['phone_number']
+            
+            # Verify OTPs from session
+            email_otp_input = request.POST.get('email_otp')
+            phone_otp_input = request.POST.get('phone_otp')
+            
+            expected_email_otp = request.session.get('reg_email_otp')
+            expected_phone_otp = request.session.get('reg_phone_otp')
+            
+            if not email_otp_input or email_otp_input != expected_email_otp or email != request.session.get('reg_email'):
+                messages.error(request, "Invalid or expired Email OTP.")
+                return redirect('/?tab=register')
+                
+            if not phone_otp_input or phone_otp_input != expected_phone_otp or phone_number != request.session.get('reg_phone'):
+                messages.error(request, "Invalid or expired Phone OTP.")
+                return redirect('/?tab=register')
+            
+            # OTPs are valid, create user
+            # Check if user already exists
+            if User.objects.filter(email=email).exists():
+                messages.error(request, "An account with this email already exists.")
+                return redirect('/?tab=register')
+                
+            with transaction.atomic():
+                user = User.objects.create_user(
+                    username=email,
+                    email=email,
+                    password=form.cleaned_data['password'],
+                    first_name=form.cleaned_data['first_name'],
+                    last_name=form.cleaned_data['last_name'],
+                    phone_number=phone_number,
+                    role='STUDENT',
+                    email_verified=True,
+                    phone_verified=True
+                )
+                
+                # Create student profile
+                Student.objects.create(
+                    user=user,
+                    department_id=form.cleaned_data.get('department_id'),
+                    course_id=form.cleaned_data.get('course_id'),
+                    semester_id=form.cleaned_data.get('semester_id'),
+                )
+
+            # Clear session OTPs
+            if 'reg_email_otp' in request.session: del request.session['reg_email_otp']
+            if 'reg_phone_otp' in request.session: del request.session['reg_phone_otp']
+            if 'reg_email' in request.session: del request.session['reg_email']
+            if 'reg_phone' in request.session: del request.session['reg_phone']
+            
+            messages.success(request, "Account created successfully! Please sign in.")
+            return redirect('login')
+        else:
+            # Form has errors — re-render the landing page with register tab active
+            messages.error(request, "Please correct the errors in the registration form.")
+            return redirect('/?tab=register')
+    return redirect('/?tab=register')
 
 def logout_view(request):
     logout(request)
     messages.info(request, "You have been logged out successfully.")
     return redirect('login')
+
 
 def forgot_password_view(request):
     if request.method == 'POST':
@@ -249,6 +202,7 @@ def forgot_password_view(request):
     else:
         form = ForgotPasswordForm()
     return render(request, 'accounts/forgot_password.html', {'form': form})
+
 
 def verify_otp_view(request):
     email = request.session.get('reset_email')
@@ -282,6 +236,7 @@ def verify_otp_view(request):
         form = VerifyOTPForm()
     return render(request, 'accounts/verify_otp.html', {'form': form, 'email': email})
 
+
 @login_required
 def dashboard_redirect_view(request):
     if request.user.role == User.Role.SUPER_ADMIN or request.user.is_superuser:
@@ -290,6 +245,7 @@ def dashboard_redirect_view(request):
         return redirect('teacher_dashboard')
     else:
         return redirect('student_dashboard')
+
 
 @login_required
 def profile_view(request):
@@ -303,6 +259,7 @@ def profile_view(request):
         form = UserProfileForm(instance=request.user)
     return render(request, 'accounts/profile.html', {'form': form})
 
+
 @login_required
 @require_POST
 def toggle_dark_mode_view(request):
@@ -311,11 +268,13 @@ def toggle_dark_mode_view(request):
     user.save(update_fields=['dark_mode'])
     return JsonResponse({'status': 'success', 'dark_mode': user.dark_mode})
 
+
 @login_required
 @role_required(['SUPER_ADMIN'])
 def login_history_view(request):
     logs = LoginHistory.objects.all().select_related('user')[:100]
     return render(request, 'accounts/login_history.html', {'logs': logs})
+
 
 @login_required
 @role_required(['SUPER_ADMIN'])
@@ -331,3 +290,41 @@ def toggle_user_active_view(request, user_id):
         messages.error(request, "You cannot deactivate your own super admin account.")
     return redirect('admin_dashboard')
 
+
+def ajax_send_email_otp_view(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            email = data.get('email')
+            if not email:
+                return JsonResponse({'success': False, 'message': 'Email is required.'})
+            
+            otp_code = f"{random.randint(100000, 999999)}"
+            request.session['reg_email_otp'] = otp_code
+            request.session['reg_email'] = email
+            request.session.modified = True
+            
+            AuthService._send_registration_email_otp(email, otp_code)
+            return JsonResponse({'success': True, 'message': 'OTP sent to email.'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+    return JsonResponse({'success': False, 'message': 'Invalid request.'})
+
+def ajax_send_phone_otp_view(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            phone_number = data.get('phone_number')
+            if not phone_number:
+                return JsonResponse({'success': False, 'message': 'Phone number is required.'})
+            
+            otp_code = f"{random.randint(100000, 999999)}"
+            request.session['reg_phone_otp'] = otp_code
+            request.session['reg_phone'] = phone_number
+            request.session.modified = True
+            
+            AuthService._send_registration_sms_otp(phone_number, otp_code)
+            return JsonResponse({'success': True, 'message': 'OTP sent to phone.'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+    return JsonResponse({'success': False, 'message': 'Invalid request.'})

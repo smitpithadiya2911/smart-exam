@@ -89,3 +89,31 @@ class LoginHistory(models.Model):
 
     def __str__(self):
         return f"{self.email_attempted} | {'Success' if self.success else 'Failed'} | {self.timestamp.strftime('%Y-%m-%d %H:%M')}"
+
+class RegistrationOTP(models.Model):
+    """Stores pending registration data with dual OTP codes until both are verified."""
+    session_key = models.CharField(max_length=255, db_index=True)
+    email = models.EmailField()
+    phone_number = models.CharField(max_length=15)
+    email_otp = models.CharField(max_length=6)
+    phone_otp = models.CharField(max_length=6)
+    pending_data = models.JSONField(help_text="Serialized registration form data")
+    created_at = models.DateTimeField(auto_now_add=True)
+    email_verified = models.BooleanField(default=False)
+    phone_verified = models.BooleanField(default=False)
+    is_used = models.BooleanField(default=False)
+
+    def is_valid(self):
+        """OTP valid for 10 minutes."""
+        return not self.is_used and (timezone.now() - self.created_at).total_seconds() < 600
+
+    def both_verified(self):
+        return self.email_verified and self.phone_verified
+
+    def __str__(self):
+        return f"RegOTP {self.email} | E:{'✓' if self.email_verified else '✗'} P:{'✓' if self.phone_verified else '✗'}"
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Registration OTP'
+        verbose_name_plural = 'Registration OTPs'

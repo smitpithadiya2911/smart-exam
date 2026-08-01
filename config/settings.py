@@ -8,6 +8,17 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load .env file if it exists
+_env_path = BASE_DIR / '.env'
+if _env_path.exists():
+    with open(_env_path) as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#') and '=' in line:
+                key, _, value = line.partition('=')
+                os.environ.setdefault(key.strip(), value.strip())
+
+
 SECRET_KEY =  os.environ.get(
     'SECRET_KEY',
     'django-insecure-default-key'
@@ -223,8 +234,17 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-# Console Email Backend for Dev/Testing
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Email Backend — Gmail SMTP for real delivery
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')        # Your Gmail address
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '') # Gmail App Password
+DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_HOST_USER', 'noreply@exam.com')
+
+# Fast2SMS API Key for real SMS delivery
+FAST2SMS_API_KEY = os.environ.get('FAST2SMS_API_KEY', '')
 
 # REST Framework Configuration
 REST_FRAMEWORK = {
