@@ -263,3 +263,5 @@ if os.environ.get('VERCEL') == '1':
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
+
+SITE_ID = 1
