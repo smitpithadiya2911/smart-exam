@@ -87,7 +87,7 @@ def login_view(request):
                         return redirect('landing')
                 else:
                     AuthService.log_login_attempt(email, None, ip, ua, False)
-                    login_error = "Invalid email/username or password. Default demo accounts: smitpithadiya@gmail.com (password: Smit#2911)"
+                    login_error = "Invalid email/username or password. Please check your credentials and try again."
         else:
             login_error = "Incorrect CAPTCHA answer. Please try again."
 
