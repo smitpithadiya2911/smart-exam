@@ -51,15 +51,6 @@ class ForgotPasswordForm(forms.Form):
         widget=forms.EmailInput(attrs={'class': 'form-control glass-input', 'placeholder': 'Enter your email', 'autocomplete': 'off'})
     )
 
-class VerifyOTPForm(forms.Form):
-    otp = forms.CharField(
-        max_length=6,
-        widget=forms.TextInput(attrs={'class': 'form-control glass-input text-center tracking-widest', 'placeholder': '123456'})
-    )
-    new_password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control glass-input pe-5', 'placeholder': 'Enter your password'})
-    )
-
 
 class UserProfileForm(forms.ModelForm):
     class Meta:

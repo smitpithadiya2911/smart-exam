@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User, OTPToken, LoginHistory
+from .models import User, LoginHistory
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
@@ -21,10 +21,7 @@ class UserAdmin(BaseUserAdmin):
     search_fields = ('email', 'first_name', 'last_name')
     ordering = ('-date_joined',)
 
-@admin.register(OTPToken)
-class OTPTokenAdmin(admin.ModelAdmin):
-    list_display = ('user', 'otp_code', 'created_at', 'is_used')
-    search_fields = ('user__email', 'otp_code')
+
 
 @admin.register(LoginHistory)
 class LoginHistoryAdmin(admin.ModelAdmin):

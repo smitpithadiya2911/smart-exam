@@ -4,8 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from .models import User, OTPToken, LoginHistory, RegistrationOTP
-from .forms import LoginForm, StudentRegistrationForm, ForgotPasswordForm, VerifyOTPForm, UserProfileForm
+from .models import User, LoginHistory
+from .forms import LoginForm, StudentRegistrationForm, UserProfileForm
 from .services import AuthService
 from .utils import generate_captcha, get_client_ip
 from .permissions import role_required, IsSuperAdmin
@@ -123,17 +123,6 @@ def register_student_view(request):
         if form.is_valid():
             email = form.cleaned_data['email']
             phone_number = form.cleaned_data['phone_number']
-            
-            # Verify OTPs from session
-            email_otp_input = request.POST.get('email_otp')
-            
-            expected_email_otp = request.session.get('reg_email_otp')
-            
-            if not email_otp_input or email_otp_input != expected_email_otp or email != request.session.get('reg_email'):
-                messages.error(request, "Invalid or expired Email OTP.")
-                return redirect('/?tab=register')
-            
-            # OTPs are valid, create user
             # Check if user already exists
             if User.objects.filter(email=email).exists():
                 messages.error(request, "An account with this email already exists.")
@@ -160,11 +149,7 @@ def register_student_view(request):
                     semester_id=form.cleaned_data.get('semester_id'),
                 )
 
-            # Clear session OTPs
-            if 'reg_email_otp' in request.session: del request.session['reg_email_otp']
-            if 'reg_phone_otp' in request.session: del request.session['reg_phone_otp']
-            if 'reg_email' in request.session: del request.session['reg_email']
-            if 'reg_phone' in request.session: del request.session['reg_phone']
+
             
             messages.success(request, "Account created successfully! Please sign in.")
             return redirect('login')
@@ -180,55 +165,7 @@ def logout_view(request):
     return redirect('login')
 
 
-def forgot_password_view(request):
-    if request.method == 'POST':
-        form = ForgotPasswordForm(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data['email']
-            try:
-                user = User.objects.get(email=email)
-                AuthService.generate_and_send_otp(user)
-                request.session['reset_email'] = email
-                messages.success(request, "An OTP has been dispatched to your email address (check console logs).")
-                return redirect('verify_otp')
-            except User.DoesNotExist:
-                messages.error(request, "No account found with this email address.")
-    else:
-        form = ForgotPasswordForm()
-    return render(request, 'accounts/forgot_password.html', {'form': form})
 
-
-def verify_otp_view(request):
-    email = request.session.get('reset_email')
-    if not email:
-        messages.error(request, "Please request a password reset first.")
-        return redirect('forgot_password')
-
-    if request.method == 'POST':
-        form = VerifyOTPForm(request.POST)
-        if form.is_valid():
-            otp = form.cleaned_data['otp']
-            new_password = form.cleaned_data['new_password']
-            user = get_object_or_404(User, email=email)
-            
-            token_qs = OTPToken.objects.filter(user=user, otp_code=otp, is_used=False)
-            if token_qs.exists() and token_qs.first().is_valid():
-                token_obj = token_qs.first()
-                token_obj.is_used = True
-                token_obj.save()
-                
-                user.set_password(new_password)
-                user.save()
-                
-                if 'reset_email' in request.session:
-                    del request.session['reset_email']
-                messages.success(request, "Password reset successfully! Please login with your new password.")
-                return redirect('login')
-            else:
-                messages.error(request, "Invalid or expired OTP code.")
-    else:
-        form = VerifyOTPForm()
-    return render(request, 'accounts/verify_otp.html', {'form': form, 'email': email})
 
 
 @login_required
@@ -285,40 +222,4 @@ def toggle_user_active_view(request, user_id):
     return redirect('admin_dashboard')
 
 
-def ajax_send_email_otp_view(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            email = data.get('email')
-            if not email:
-                return JsonResponse({'success': False, 'message': 'Email is required.'})
-            
-            otp_code = f"{random.randint(100000, 999999)}"
-            request.session['reg_email_otp'] = otp_code
-            request.session['reg_email'] = email
-            request.session.modified = True
-            
-            AuthService._send_registration_email_otp(email, otp_code)
-            return JsonResponse({'success': True, 'message': 'OTP sent to email.'})
-        except Exception as e:
-            return JsonResponse({'success': False, 'message': str(e)})
-    return JsonResponse({'success': False, 'message': 'Invalid request.'})
 
-def ajax_send_phone_otp_view(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            phone_number = data.get('phone_number')
-            if not phone_number:
-                return JsonResponse({'success': False, 'message': 'Phone number is required.'})
-            
-            otp_code = f"{random.randint(100000, 999999)}"
-            request.session['reg_phone_otp'] = otp_code
-            request.session['reg_phone'] = phone_number
-            request.session.modified = True
-            
-            AuthService._send_registration_sms_otp(phone_number, otp_code)
-            return JsonResponse({'success': True, 'message': 'OTP sent to phone.'})
-        except Exception as e:
-            return JsonResponse({'success': False, 'message': str(e)})
-    return JsonResponse({'success': False, 'message': 'Invalid request.'})
