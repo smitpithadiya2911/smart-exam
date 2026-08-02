@@ -147,7 +147,10 @@
                   {{ reg_form.email }}
                 </div>
 
-
+                <div class="col-12">
+                  <label class="form-label font-monospace small mb-1" style="color: #00F5FF;">MOBILE NUMBER</label>
+                  {{ reg_form.phone_number }}
+                </div>
 
                 <div class="col-6">
                   <label class="form-label font-monospace small mb-1" style="color: #00F5FF;">PASSWORD</label>
@@ -203,98 +206,7 @@
     </div>
   </div>
 
-  <!-- Animated CSS/SVG Walking & Waving Student -->
-  <svg width="150" height="200" viewBox="0 0 150 200" id="walking-student">
-    <g class="student-body" transform="translate(75, 100)">
-      <!-- Backpack -->
-      <rect x="-25" y="-20" width="12" height="35" rx="5" fill="#FF0055" />
-      
-      <!-- Body -->
-      <rect x="-15" y="-30" width="30" height="60" rx="10" fill="#00F5FF" />
-      <!-- Collar -->
-      <path d="M-15,-20 Q0,-10 15,-20 Z" fill="#0A1628" />
-      
-      <!-- Head -->
-      <g class="head" transform="translate(0, -45)">
-        <!-- Face -->
-        <circle cx="0" cy="0" r="18" fill="#FFE0BD" />
-        <!-- Hair -->
-        <path d="M-20,0 A20,20 0 0,1 20,0 L22,-10 C15,-20 -15,-20 -22,-10 Z" fill="#2D1B00" />
-        <path d="M-22,-5 C-25,-15 -10,-25 0,-25 C10,-25 25,-15 22,-5 Z" fill="#2D1B00" />
-        <!-- Eyes -->
-        <circle cx="5" cy="-2" r="2.5" fill="#000" />
-        <circle cx="12" cy="-2" r="2.5" fill="#000" />
-        <!-- Smile -->
-        <path d="M4,5 Q8.5,10 13,5" fill="transparent" stroke="#000" stroke-width="1.5" stroke-linecap="round" />
-      </g>
 
-      <!-- Left Leg (back) -->
-      <g class="leg left-leg" transform="translate(-8, 25)">
-        <rect x="-4" y="0" width="8" height="30" rx="4" fill="#0A1628" />
-        <rect x="-6" y="25" width="14" height="8" rx="3" fill="#FFF" />
-      </g>
-      
-      <!-- Right Leg (front) -->
-      <g class="leg right-leg" transform="translate(8, 25)">
-        <rect x="-4" y="0" width="8" height="30" rx="4" fill="#0A1628" />
-        <rect x="-6" y="25" width="14" height="8" rx="3" fill="#FFF" />
-      </g>
-
-      <!-- Left Arm (back) -->
-      <g class="arm left-arm" transform="translate(-10, -20)">
-        <rect x="-4" y="0" width="8" height="30" rx="4" fill="#00A8FF" />
-      </g>
-      
-      <!-- Right Arm (front) - WAVING -->
-      <g class="arm waving-arm" transform="translate(10, -20)">
-        <rect x="-4" y="0" width="8" height="30" rx="4" fill="#00A8FF" />
-        <circle cx="0" cy="30" r="5" fill="#FFE0BD" /> <!-- Hand -->
-      </g>
-    </g>
-  </svg>
-</div>
-
-<style>
-  @keyframes walkLegRight {
-    0%, 100% { transform: translate(8px, 25px) rotate(-25deg); }
-    50% { transform: translate(8px, 25px) rotate(25deg); }
-  }
-  @keyframes walkLegLeft {
-    0%, 100% { transform: translate(-8px, 25px) rotate(25deg); }
-    50% { transform: translate(-8px, 25px) rotate(-25deg); }
-  }
-  @keyframes walkArmLeft {
-    0%, 100% { transform: translate(-10px, -20px) rotate(25deg); }
-    50% { transform: translate(-10px, -20px) rotate(-25deg); }
-  }
-  @keyframes waveArmRight {
-    0%, 100% { transform: translate(10px, -20px) rotate(-130deg); }
-    50% { transform: translate(10px, -20px) rotate(-100deg); }
-  }
-  @keyframes bodyBounce {
-    0%, 100% { transform: translate(75px, 100px); }
-    50% { transform: translate(75px, 95px); }
-  }
-  @keyframes slideInWalk {
-    0% { transform: translateX(-150px); }
-    100% { transform: translateX(20px); }
-  }
-
-  .right-leg { animation: walkLegRight 0.8s infinite ease-in-out; transform-origin: top center; }
-  .left-leg { animation: walkLegLeft 0.8s infinite ease-in-out; transform-origin: top center; }
-  .left-arm { animation: walkArmLeft 0.8s infinite ease-in-out; transform-origin: top center; }
-  .waving-arm { animation: waveArmRight 0.6s infinite ease-in-out; transform-origin: top center; }
-  .student-body { animation: bodyBounce 0.4s infinite ease-in-out; }
-  
-  #walking-student {
-    position: fixed;
-    bottom: -10px;
-    left: 0;
-    z-index: 50;
-    animation: slideInWalk 4s ease-out forwards;
-    filter: drop-shadow(0 0 15px rgba(0, 245, 255, 0.4));
-  }
-</style>
 
 <!-- Tab switching logic -->
 <script>

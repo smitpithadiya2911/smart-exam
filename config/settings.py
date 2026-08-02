@@ -71,7 +71,6 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'allauth.account.middleware.AccountMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -80,6 +79,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -274,7 +274,7 @@ SPECTACULAR_SETTINGS = {
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 
 # Ensure CSRF and session cookies work properly on Vercel's HTTPS domains
-CSRF_TRUSTED_ORIGINS = ['https://*.vercel.app']
+CSRF_TRUSTED_ORIGINS = ['https://*.vercel.app', 'http://127.0.0.1:8000', 'http://localhost:8000']
 env_csrf = os.environ.get('CSRF_TRUSTED_ORIGINS')
 if env_csrf:
     CSRF_TRUSTED_ORIGINS.extend([origin.strip() for origin in env_csrf.split(',')])
