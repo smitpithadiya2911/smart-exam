@@ -126,17 +126,11 @@ def register_student_view(request):
             
             # Verify OTPs from session
             email_otp_input = request.POST.get('email_otp')
-            phone_otp_input = request.POST.get('phone_otp')
             
             expected_email_otp = request.session.get('reg_email_otp')
-            expected_phone_otp = request.session.get('reg_phone_otp')
             
             if not email_otp_input or email_otp_input != expected_email_otp or email != request.session.get('reg_email'):
                 messages.error(request, "Invalid or expired Email OTP.")
-                return redirect('/?tab=register')
-                
-            if not phone_otp_input or phone_otp_input != expected_phone_otp or phone_number != request.session.get('reg_phone'):
-                messages.error(request, "Invalid or expired Phone OTP.")
                 return redirect('/?tab=register')
             
             # OTPs are valid, create user

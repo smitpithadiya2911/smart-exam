@@ -4,6 +4,8 @@ from django.contrib import messages
 from accounts.permissions import role_required
 from .models import Department
 from .forms import DepartmentForm
+import random
+from django.core.mail import send_mail
 
 @login_required
 @role_required(['SUPER_ADMIN'])
@@ -42,3 +44,5 @@ def department_delete_view(request, pk):
         messages.success(request, "Department deleted successfully!")
         return redirect('department_list')
     return render(request, 'departments/department_confirm_delete.html', {'department': dept})
+
+    

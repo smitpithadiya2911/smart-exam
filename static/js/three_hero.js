@@ -6,8 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
   
-  // Position camera to view full educational tools universe
-  camera.position.set(0, 1.8, 7.2);
+  // Position camera closer to clearly show books, pens, and educational items
+  camera.position.set(0, 0.8, 4.5);
   camera.lookAt(0, 0, 0);
 
   const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });

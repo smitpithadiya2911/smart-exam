@@ -10,7 +10,7 @@
     <div class="row align-items-center justify-content-center g-4">
 
       <!-- Left Hero Text Section (visible on lg+) -->
-      <div class="col-lg-5 d-none d-lg-block" data-aos="fade-right">
+      <div class="col-lg-5 d-none d-lg-block pe-lg-5" data-aos="fade-right">
         <div class="badge border mb-3 px-3 py-2 rounded-pill d-inline-flex align-items-center gap-2" style="background: rgba(0, 245, 255, 0.1); border-color: rgba(0, 245, 255, 0.4) !important; color: #00F5FF; box-shadow: 0 0 15px rgba(0,245,255,0.3);">
           <i class="bi bi-stars me-1"></i>
           <span>EdTech Startup Grade Learning Engine</span>
@@ -18,9 +18,11 @@
         <h1 class="display-4 font-heading fw-bold mb-3 animated-cyber-gradient">
           Smart Examination & Learning Analytics
         </h1>
-        <p class="lead cyber-lead-text mb-4">
-          Empowering BCA and EdTech institutions with AI-driven study recommendations, anti-cheating exam monitoring, instant PDF scorecards, and QR-verified certificates.
-        </p>
+        <div class="mt-4">
+          <button type="button" class="btn btn-lg px-4 py-3 fw-bold" onclick="switchTab('register')" style="background: linear-gradient(135deg, #00F5FF 0%, #7B3FFB 100%); color: #fff; border: none; border-radius: 12px; box-shadow: 0 8px 25px rgba(123, 63, 251, 0.4); transition: transform 0.3s ease;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+            <i class="bi bi-person-plus-fill me-2"></i> Register as Student
+          </button>
+        </div>
       </div>
 
       <!-- Right Card Section with Login/Register Tabs -->
@@ -44,17 +46,7 @@
           </div>
           {% else %}
 
-          <!-- Tab Navigation -->
-          <div class="position-relative mb-3" style="z-index: 1;">
-            <div class="d-flex rounded-pill p-1 mb-0" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
-              <button type="button" class="btn flex-fill rounded-pill py-2 fw-semibold landing-tab-btn {% if active_tab != 'register' %}active{% endif %}" data-tab="login" onclick="switchTab('login')" style="transition: all 0.3s ease; font-size: 0.9rem;">
-                <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
-              </button>
-              <button type="button" class="btn flex-fill rounded-pill py-2 fw-semibold landing-tab-btn {% if active_tab == 'register' %}active{% endif %}" data-tab="register" onclick="switchTab('register')" style="transition: all 0.3s ease; font-size: 0.9rem;">
-                <i class="bi bi-person-plus me-1"></i> Register
-              </button>
-            </div>
-          </div>
+
 
           <!-- ==================== LOGIN TAB ==================== -->
           <div id="loginTab" class="tab-panel position-relative" style="z-index: 1; {% if active_tab == 'register' %}display:none;{% endif %}">
@@ -102,6 +94,10 @@
               </div>
 
               <button type="submit" class="btn btn-glass-primary w-100 py-2 fs-6"><i class="bi bi-box-arrow-in-right me-1"></i> Access Account</button>
+              
+              <div class="text-center mt-3">
+                <small class="text-muted">Don't have an account? <a href="#" onclick="switchTab('register'); return false;" style="color: #3EA6FF;" class="text-decoration-none fw-bold">Register Student</a></small>
+              </div>
             </form>
           </div>
 
@@ -136,17 +132,7 @@
                   </div>
                 </div>
 
-                <div class="col-12">
-                  <label class="form-label font-monospace small mb-1" style="color: #00F5FF;">PHONE NUMBER</label>
-                  <div class="input-group">
-                    <span class="input-group-text glass-input" style="color: #00F5FF; font-weight: 600;">+91</span>
-                    {{ reg_form.phone_number }}
-                    <button class="btn btn-outline-info" type="button" id="btn-send-phone-otp" onclick="sendOTP('phone')">Send OTP</button>
-                  </div>
-                  <div id="phone-otp-container" style="display: none;" class="mt-2">
-                    <input type="text" name="phone_otp" id="phone_otp" class="form-control glass-input" placeholder="Enter Phone OTP" maxlength="6">
-                  </div>
-                </div>
+
 
                 <div class="col-6">
                   <label class="form-label font-monospace small mb-1" style="color: #00F5FF;">PASSWORD</label>
@@ -201,7 +187,23 @@
       </div>
     </div>
   </div>
+
+  <!-- Walking Waving Cartoon Student at bottom left -->
+  <div class="position-fixed" style="bottom: -20px; left: 20px; z-index: 50; animation: walkIn 2s ease-out forwards, floatWave 3s infinite ease-in-out; transform-origin: bottom center;">
+    <img src="{% static 'images/waving_student.png' %}" alt="Waving Student" style="width: 250px; height: auto; mix-blend-mode: screen; filter: drop-shadow(0 0 15px rgba(0, 245, 255, 0.4));">
+  </div>
 </div>
+
+<style>
+  @keyframes walkIn {
+    0% { transform: translateX(-100%) rotate(-10deg); opacity: 0; }
+    100% { transform: translateX(0) rotate(0deg); opacity: 1; }
+  }
+  @keyframes floatWave {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(2deg); }
+  }
+</style>
 
 <!-- Tab switching logic -->
 <script>
@@ -308,16 +310,6 @@ function sendOTP(type) {
         data = {email: email};
         btn = document.getElementById('btn-send-email-otp');
         container = document.getElementById('email-otp-container');
-    } else {
-        const phone = document.querySelector('#registerTab input[name="phone_number"]').value;
-        if (!phone) {
-            Swal.fire({icon: 'error', title: 'Oops...', text: 'Please enter your phone number first!'});
-            return;
-        }
-        url = '{% url "ajax_send_phone_otp" %}';
-        data = {phone_number: phone};
-        btn = document.getElementById('btn-send-phone-otp');
-        container = document.getElementById('phone-otp-container');
     }
 
     // Start UI feedback

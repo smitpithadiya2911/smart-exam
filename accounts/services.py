@@ -74,12 +74,12 @@ class AuthService:
             from_email = settings.DEFAULT_FROM_EMAIL
             send_mail(subject, message, from_email, [email], fail_silently=False)
             print(f"\n{'='*60}")
-            print(f"  ✅ EMAIL OTP sent successfully to {email}")
+            print(f"  [OK] EMAIL OTP sent successfully to {email}")
             print(f"{'='*60}\n")
         except Exception as e:
             print(f"\n{'='*60}")
-            print(f"  ❌ EMAIL SEND FAILED: {e}")
-            print(f"  📧 Fallback — EMAIL OTP for {email}: {otp_code}")
+            print(f"  [ERROR] EMAIL SEND FAILED: {e}")
+            print(f"  [EMAIL] Fallback — EMAIL OTP for {email}: {otp_code}")
             print(f"{'='*60}\n")
 
     @staticmethod
@@ -99,8 +99,8 @@ class AuthService:
 
         if not api_key:
             print(f"\n{'='*60}")
-            print(f"  ⚠️  FAST2SMS_API_KEY not set in .env file!")
-            print(f"  📱 Fallback — SMS OTP for {phone_number}: {otp_code}")
+            print(f"  [WARN] FAST2SMS_API_KEY not set in .env file!")
+            print(f"  [SMS] Fallback — SMS OTP for {phone_number}: {otp_code}")
             print(f"  Sign up at https://www.fast2sms.com/ for free API key")
             print(f"{'='*60}\n")
             return False
@@ -123,19 +123,19 @@ class AuthService:
 
             if result.get('return'):
                 print(f"\n{'='*60}")
-                print(f"  ✅ SMS OTP sent successfully to {phone_number}")
+                print(f"  [OK] SMS OTP sent successfully to {phone_number}")
                 print(f"{'='*60}\n")
                 return True
             else:
                 print(f"\n{'='*60}")
-                print(f"  ❌ Fast2SMS error: {result.get('message', 'Unknown error')}")
-                print(f"  📱 Fallback — SMS OTP for {phone_number}: {otp_code}")
+                print(f"  [ERROR] Fast2SMS error: {result.get('message', 'Unknown error')}")
+                print(f"  [SMS] Fallback — SMS OTP for {phone_number}: {otp_code}")
                 print(f"{'='*60}\n")
                 return False
 
         except Exception as e:
             print(f"\n{'='*60}")
-            print(f"  ❌ SMS SEND FAILED: {e}")
-            print(f"  📱 Fallback — SMS OTP for {phone_number}: {otp_code}")
+            print(f"  [ERROR] SMS SEND FAILED: {e}")
+            print(f"  [SMS] Fallback — SMS OTP for {phone_number}: {otp_code}")
             print(f"{'='*60}\n")
             return False
