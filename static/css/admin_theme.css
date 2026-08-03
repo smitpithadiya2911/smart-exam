@@ -12,6 +12,8 @@
   --admin-border: rgba(255, 255, 255, 0.1);
   --admin-border-glow: rgba(0, 245, 255, 0.3);
   --admin-success: #00FF9D;
+  --admin-error: #FF3366;
+  --admin-warning: #FFB020;
 }
 
 body {
@@ -25,7 +27,7 @@ body {
 
 /* Header Styling */
 #header {
-  background: rgba(4, 6, 15, 0.9) !important;
+  background: rgba(4, 6, 15, 0.95) !important;
   backdrop-filter: blur(25px) !important;
   border-bottom: 1px solid var(--admin-border-glow) !important;
   color: #ffffff !important;
@@ -83,7 +85,7 @@ div.breadcrumbs a {
   text-decoration: none !important;
 }
 
-/* Main Content Module Cards */
+/* Main Content & Modules */
 #content {
   padding: 28px !important;
 }
@@ -101,25 +103,26 @@ div.breadcrumbs a {
 
 .module:hover {
   border-color: var(--admin-border-glow) !important;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 20px rgba(0, 245, 255, 0.2) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 20px rgba(0, 245, 255, 0.1) !important;
 }
 
 .module h2, .module caption {
-  background: rgba(4, 6, 15, 0.8) !important;
+  background: rgba(4, 6, 15, 0.9) !important;
   color: var(--admin-primary) !important;
   font-family: 'Orbitron', sans-serif !important;
   font-weight: 700 !important;
-  font-size: 1rem !important;
+  font-size: 1.05rem !important;
   letter-spacing: 1px !important;
-  padding: 14px 20px !important;
+  padding: 16px 20px !important;
   border-bottom: 1px solid var(--admin-border) !important;
 }
 
-/* Admin Tables */
+/* Admin Tables (Changelist) */
 #result_list table, table {
   width: 100% !important;
   border-collapse: separate !important;
   border-spacing: 0 !important;
+  background: transparent !important;
 }
 
 #result_list th, table th {
@@ -139,13 +142,91 @@ div.breadcrumbs a {
   border-bottom: 1px solid var(--admin-border) !important;
   font-size: 0.95rem !important;
   color: var(--admin-text) !important;
+  background: transparent !important;
 }
 
 #result_list tr:hover td {
   background-color: rgba(0, 245, 255, 0.08) !important;
 }
 
-/* Action Buttons */
+/* Selected Rows Fix */
+#result_list tr.selected td, tr.selected th {
+  background-color: rgba(123, 63, 251, 0.2) !important; /* Cyber purple tint instead of yellow */
+  border-bottom: 1px solid var(--admin-purple) !important;
+  color: #fff !important;
+}
+
+/* Action Bar (.actions) */
+.actions {
+  background: var(--admin-card-bg) !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 12px !important;
+  padding: 14px 20px !important;
+  margin-bottom: 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  color: var(--admin-text) !important;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+}
+
+.actions label {
+  color: var(--admin-muted) !important;
+  font-size: 0.95rem !important;
+  margin-right: 8px !important;
+}
+
+.actions span.action-counter {
+  color: var(--admin-accent) !important;
+  margin-left: auto !important;
+  font-size: 0.9rem !important;
+}
+
+/* Search Bar (#toolbar) */
+#toolbar {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 0 20px 0 !important;
+  margin: 0 !important;
+}
+
+#toolbar form > div {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+#searchbar {
+  background: rgba(4, 6, 15, 0.8) !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 12px !important;
+  color: var(--admin-text) !important;
+  padding: 12px 20px 12px 45px !important;
+  font-size: 1rem !important;
+  width: 100% !important;
+  max-width: 500px !important;
+  transition: all 0.3s ease !important;
+  box-shadow: inset 0 2px 10px rgba(0,0,0,0.5) !important;
+}
+
+#searchbar:focus {
+  border-color: var(--admin-primary) !important;
+  box-shadow: 0 0 20px var(--admin-border-glow), inset 0 2px 10px rgba(0,0,0,0.5) !important;
+  outline: none !important;
+}
+
+/* Add magnifying glass via CSS pseudo-element since we can't edit HTML */
+#toolbar form > div::before {
+  content: "⚲";
+  position: absolute !important;
+  left: 16px !important;
+  font-size: 1.3rem !important;
+  color: var(--admin-primary) !important;
+  pointer-events: none !important;
+  transform: rotate(-45deg);
+}
+
+/* Buttons (Save, Go, Search) */
 .button, input[type=submit], input[type=button], .submit-row input, a.button {
   background: linear-gradient(135deg, #00A8FF 0%, #7B3FFB 100%) !important;
   color: #ffffff !important;
@@ -159,6 +240,14 @@ div.breadcrumbs a {
   cursor: pointer !important;
   box-shadow: 0 4px 15px rgba(0, 168, 255, 0.3) !important;
   transition: all 0.25s ease !important;
+  text-transform: uppercase !important;
+}
+
+.button.default {
+  background: linear-gradient(135deg, #00F5FF 0%, #00A8FF 100%) !important;
+  color: #04060F !important;
+  font-weight: 800 !important;
+  border: 1px solid #00F5FF !important;
 }
 
 .button:hover, input[type=submit]:hover, input[type=button]:hover, .submit-row input:hover {
@@ -166,11 +255,89 @@ div.breadcrumbs a {
   box-shadow: 0 8px 24px rgba(0, 245, 255, 0.45) !important;
 }
 
-/* Form Fields */
+/* Delete Button Specific */
+.deletelink, .delete {
+  background: linear-gradient(135deg, var(--admin-error) 0%, #c51162 100%) !important;
+  border: 1px solid var(--admin-error) !important;
+}
+
+.deletelink:hover, .delete:hover {
+  box-shadow: 0 8px 24px rgba(255, 51, 102, 0.45) !important;
+}
+
+/* Add Button Specific */
+.addlink, .object-tools a.addlink {
+  background: rgba(0, 255, 157, 0.15) !important;
+  color: var(--admin-success) !important;
+  border: 1px solid rgba(0, 255, 157, 0.4) !important;
+}
+
+.addlink:hover, .object-tools a.addlink:hover {
+  background: rgba(0, 255, 157, 0.25) !important;
+  box-shadow: 0 4px 15px rgba(0, 255, 157, 0.3) !important;
+}
+
+/* Sidebar Styling Fixes (#nav-sidebar) */
+#nav-sidebar {
+  background: rgba(4, 6, 15, 0.95) !important;
+  border-right: 1px solid var(--admin-border) !important;
+  box-shadow: inset -5px 0 15px rgba(0,0,0,0.5) !important;
+}
+
+#nav-sidebar .module {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  margin-bottom: 0 !important;
+  border-radius: 0 !important;
+}
+
+#nav-sidebar .module caption {
+  background: rgba(9, 19, 34, 0.5) !important;
+  padding: 12px 18px !important;
+  border-bottom: 1px solid var(--admin-border-glow) !important;
+  font-size: 0.95rem !important;
+  color: var(--admin-primary) !important;
+}
+
+#nav-sidebar a {
+  color: var(--admin-muted) !important;
+  font-size: 0.9rem !important;
+  padding: 10px 18px !important;
+  transition: all 0.2s ease !important;
+}
+
+#nav-sidebar tr {
+  background: transparent !important;
+}
+
+#nav-sidebar tr:hover {
+  background: rgba(0, 245, 255, 0.05) !important;
+}
+
+#nav-sidebar a:hover {
+  color: var(--admin-primary) !important;
+}
+
+#nav-sidebar a.addlink {
+  background: rgba(0, 255, 157, 0.1) !important;
+  border: 1px solid rgba(0, 255, 157, 0.2) !important;
+  padding: 4px 12px !important;
+  border-radius: 6px !important;
+  font-size: 0.8rem !important;
+  margin: 5px !important;
+  color: var(--admin-success) !important;
+}
+
+#nav-sidebar a.addlink:hover {
+  background: rgba(0, 255, 157, 0.2) !important;
+}
+
+/* Form Controls (Inputs, Selects, Checkboxes) */
 input[type=text], input[type=password], input[type=email], input[type=number], input[type=url], select, textarea {
   border: 1px solid var(--admin-border) !important;
-  border-radius: 10px !important;
-  padding: 10px 14px !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
   font-size: 0.95rem !important;
   background-color: rgba(4, 6, 15, 0.7) !important;
   color: var(--admin-text) !important;
@@ -183,11 +350,49 @@ input[type=text]:focus, input[type=password]:focus, select:focus, textarea:focus
   outline: none !important;
 }
 
-/* Filter Panel */
+/* Checkboxes */
+input[type=checkbox] {
+  appearance: none !important;
+  background-color: rgba(4, 6, 15, 0.8) !important;
+  margin: 0 !important;
+  font: inherit !important;
+  color: currentColor !important;
+  width: 1.15em !important;
+  height: 1.15em !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 0.25em !important;
+  display: inline-grid !important;
+  place-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+input[type=checkbox]::before {
+  content: "" !important;
+  width: 0.65em !important;
+  height: 0.65em !important;
+  transform: scale(0) !important;
+  transition: 120ms transform ease-in-out !important;
+  box-shadow: inset 1em 1em var(--admin-primary) !important;
+  background-color: var(--admin-primary) !important;
+  transform-origin: center !important;
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%) !important;
+}
+
+input[type=checkbox]:checked {
+  border-color: var(--admin-primary) !important;
+  background: rgba(0, 245, 255, 0.1) !important;
+}
+
+input[type=checkbox]:checked::before {
+  transform: scale(1) !important;
+}
+
+/* Filter Panel (#changelist-filter) */
 #changelist-filter {
   background: var(--admin-card-bg) !important;
   border-left: 1px solid var(--admin-border) !important;
-  border-radius: 16px !important;
+  border-radius: 0 16px 16px 0 !important;
   padding: 20px !important;
 }
 
@@ -195,13 +400,95 @@ input[type=text]:focus, input[type=password]:focus, select:focus, textarea:focus
   font-family: 'Orbitron', sans-serif !important;
   font-size: 1rem !important;
   color: var(--admin-primary) !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 0 15px 0 !important;
+  text-transform: uppercase !important;
+}
+
+#changelist-filter h3 {
+  font-family: 'Rajdhani', sans-serif !important;
+  color: var(--admin-muted) !important;
+  font-size: 0.95rem !important;
+  margin-top: 15px !important;
+  margin-bottom: 10px !important;
+  border-bottom: 1px dashed var(--admin-border) !important;
+  padding-bottom: 5px !important;
+}
+
+#changelist-filter ul {
+  margin-bottom: 20px !important;
+}
+
+#changelist-filter li {
+  list-style: none !important;
+  margin-bottom: 6px !important;
 }
 
 #changelist-filter a {
   color: var(--admin-muted) !important;
+  text-decoration: none !important;
+  transition: all 0.2s ease !important;
+}
+
+#changelist-filter a:hover {
+  color: var(--admin-primary) !important;
+  padding-left: 4px !important;
 }
 
 #changelist-filter li.selected a {
   color: var(--admin-primary) !important;
   font-weight: 700 !important;
+  border-left: 3px solid var(--admin-primary) !important;
+  padding-left: 8px !important;
+}
+
+/* Pagination */
+.paginator {
+  background: var(--admin-card-bg) !important;
+  border-top: 1px solid var(--admin-border) !important;
+  padding: 16px 20px !important;
+  color: var(--admin-muted) !important;
+  font-size: 0.9rem !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.paginator a {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: var(--admin-text) !important;
+  padding: 6px 12px !important;
+  border-radius: 6px !important;
+  border: 1px solid var(--admin-border) !important;
+  text-decoration: none !important;
+  transition: all 0.2s ease !important;
+}
+
+.paginator a:hover {
+  background: rgba(0, 245, 255, 0.15) !important;
+  border-color: var(--admin-primary) !important;
+  color: var(--admin-primary) !important;
+}
+
+.paginator span.this-page {
+  background: rgba(0, 245, 255, 0.2) !important;
+  color: var(--admin-primary) !important;
+  padding: 6px 12px !important;
+  border-radius: 6px !important;
+  border: 1px solid var(--admin-primary) !important;
+  font-weight: 700 !important;
+}
+
+/* Object Tools (.object-tools) */
+.object-tools {
+  margin: 0 0 20px 0 !important;
+  padding: 0 !important;
+  font-size: 0.9rem !important;
+}
+
+.object-tools li {
+  display: inline-block !important;
+  list-style: none !important;
+  margin-left: 10px !important;
 }
