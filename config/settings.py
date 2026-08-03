@@ -224,6 +224,11 @@ GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', 'YOUR_GOOGLE_CLIENT_ID.app
 
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
+        "APP": {
+            "client_id": GOOGLE_CLIENT_ID,
+            "secret": os.environ.get("GOOGLE_CLIENT_SECRET", "dummy_secret"),
+            "key": ""
+        },
         "SCOPE": [
             "profile",
             "email",
