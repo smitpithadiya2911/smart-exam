@@ -109,6 +109,8 @@
             <a href="{% url 'reports_dashboard' %}"
               class="nav-link-glass {% if 'reports' in request.path %}active{% endif %}"><i
                 class="bi bi-file-earmark-bar-graph"></i> Reports & Analytics</a>
+            <a href="{% url 'material_manage_list' %}"
+              class="nav-link-glass {% if 'materials' in request.path %}active{% endif %}"><i class="bi bi-folder-fill"></i> Study Materials</a>
             {% endif %}
 
             {% if user.role == 'STUDENT' %}
@@ -123,6 +125,8 @@
             <a href="{% url 'ai_recommendations' %}"
               class="nav-link-glass {% if 'ai' in request.path %}active{% endif %}"><i class="bi bi-cpu"></i> AI Study
               Plan</a>
+            <a href="{% url 'student_material_list' %}"
+              class="nav-link-glass {% if 'materials' in request.path %}active{% endif %}"><i class="bi bi-folder-fill"></i> Study Materials</a>
             <a href="{% url 'leaderboard' %}"
               class="nav-link-glass {% if 'leaderboard' in request.path %}active{% endif %}"><i
                 class="bi bi-trophy"></i> Leaderboard</a>

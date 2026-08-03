@@ -39,6 +39,7 @@ urlpatterns = [
     path('feedback/', include('feedback.urls')),
     path('leaderboard/', include('leaderboard.urls')),
     path('reports/', include('reports.urls')),
+    path('materials/', include('study_materials.urls')),
 
     # REST API & Documentation
     path('api/v1/', include('api.urls')),

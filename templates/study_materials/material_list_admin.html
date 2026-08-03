@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block title %}Manage Study Materials - EdTech Core{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4" data-aos="fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="font-heading fw-bold text-white mb-0">Study Materials Management</h2>
+            <p class="text-muted mb-0">Upload and manage course documents and resources.</p>
+        </div>
+        <a href="{% url 'material_create' %}" class="btn btn-primary glass-button rounded-pill px-4">
+            <i class="bi bi-cloud-upload me-2"></i> Upload Material
+        </a>
+    </div>
+
+    <!-- Search & Filter Bar -->
+    <div class="glass-card p-3 mb-4 rounded-4 border-0 shadow-sm d-flex gap-3 align-items-center">
+        <form method="get" class="d-flex flex-grow-1 position-relative">
+            <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+            <input type="text" name="q" value="{{ query }}" class="form-control glass-input ps-5 border-0 rounded-pill" placeholder="Search by title or description..." style="background: rgba(255,255,255,0.05);">
+        </form>
+    </div>
+
+    <!-- Materials Table -->
+    <div class="glass-card rounded-4 border-0 shadow-sm overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover table-cyber mb-0 align-middle">
+                <thead>
+                    <tr class="text-uppercase" style="font-size: 0.85rem; letter-spacing: 1px;">
+                        <th class="ps-4">Material</th>
+                        <th>Type</th>
+                        <th>Course / Subject</th>
+                        <th>Visibility</th>
+                        <th>Downloads</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for material in page_obj %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0 shadow-sm" style="width: 48px; height: 48px; background: rgba(0, 245, 255, 0.1); border: 1px solid rgba(0,245,255,0.2);">
+                                    {% if material.material_type == 'PDF' %}
+                                        <i class="bi bi-file-earmark-pdf fs-4 text-danger"></i>
+                                    {% elif material.material_type == 'VIDEO' %}
+                                        <i class="bi bi-file-earmark-play fs-4 text-primary"></i>
+                                    {% elif material.material_type == 'IMAGE' %}
+                                        <i class="bi bi-file-earmark-image fs-4 text-success"></i>
+                                    {% else %}
+                                        <i class="bi bi-file-earmark-text fs-4 text-info"></i>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold text-white">{{ material.title }}</h6>
+                                    <small class="text-muted">Uploaded {{ material.upload_date|timesince }} ago by {{ material.uploaded_by.get_full_name|default:material.uploaded_by.username }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary border border-secondary text-light rounded-pill px-3 py-2">
+                                {{ material.get_material_type_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="small fw-semibold text-white">{{ material.course.name|default:"--" }}</div>
+                            <div class="small text-muted">{{ material.subject.name|default:"--" }}</div>
+                        </td>
+                        <td>
+                            <span class="badge {% if material.visibility == 'ALL' %}bg-success{% else %}bg-info{% endif %} bg-opacity-25 border {% if material.visibility == 'ALL' %}border-success text-success{% else %}border-info text-info{% endif %} rounded-pill px-3 py-2">
+                                {{ material.get_visibility_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-cloud-download text-muted"></i>
+                                <span class="fw-bold">{{ material.download_count }}</span>
+                            </div>
+                        </td>
+                        <td class="text-end pe-4">
+                            <a href="{% url 'material_detail' material.pk %}" class="btn btn-sm btn-outline-info rounded-circle me-1" title="View"><i class="bi bi-eye"></i></a>
+                            <a href="{% url 'material_update' material.pk %}" class="btn btn-sm btn-outline-warning rounded-circle me-1" title="Edit"><i class="bi bi-pencil"></i></a>
+                            <a href="{% url 'material_delete' material.pk %}" class="btn btn-sm btn-outline-danger rounded-circle" title="Delete"><i class="bi bi-trash"></i></a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <div class="text-muted mb-3"><i class="bi bi-folder-x display-4 opacity-50"></i></div>
+                            <h5 class="fw-bold text-white">No Materials Found</h5>
+                            <p class="text-muted">You haven't uploaded any study materials yet.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <nav class="mt-4 d-flex justify-content-center">
+        <ul class="pagination pagination-cyber">
+            {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}"><i class="bi bi-chevron-left"></i></a></li>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a>
+            </li>
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}"><i class="bi bi-chevron-right"></i></a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} - EdTech Core{% endblock %}
+
+{% block content %}
+<div class="container py-4" data-aos="fade-in" style="max-width: 800px;">
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="{% url 'material_manage_list' %}" class="btn btn-glass-primary rounded-circle p-2" title="Back">
+            <i class="bi bi-arrow-left fs-5"></i>
+        </a>
+        <h2 class="font-heading fw-bold text-white mb-0">{{ title }}</h2>
+    </div>
+
+    <div class="glass-card p-4 rounded-4 border-0 shadow-lg">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="row g-4">
+                <div class="col-md-12">
+                    <label class="form-label text-info fw-semibold small text-uppercase tracking-wider">Title *</label>
+                    {{ form.title }}
+                    {% if form.title.errors %}<div class="text-danger small mt-1">{{ form.title.errors }}</div>{% endif %}
+                </div>
+                
+                <div class="col-md-12">
+                    <label class="form-label text-info fw-semibold small text-uppercase tracking-wider">Description</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}<div class="text-danger small mt-1">{{ form.description.errors }}</div>{% endif %}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label text-info fw-semibold small text-uppercase tracking-wider">Material Type *</label>
+                    {{ form.material_type }}
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label text-info fw-semibold small text-uppercase tracking-wider">Visibility *</label>
+                    {{ form.visibility }}
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label text-info fw-semibold small text-uppercase tracking-wider">Course</label>
+                    {{ form.course }}
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label text-info fw-semibold small text-uppercase tracking-wider">Semester</label>
+                    {{ form.semester }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label text-info fw-semibold small text-uppercase tracking-wider">Subject</label>
+                    {{ form.subject }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label text-info fw-semibold small text-uppercase tracking-wider">Department</label>
+                    {{ form.department }}
+                </div>
+
+                <div class="col-md-12">
+                    <div class="p-3 border rounded-4" style="background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.1) !important;">
+                        <label class="form-label text-warning fw-semibold small text-uppercase tracking-wider"><i class="bi bi-file-earmark-arrow-up me-1"></i> Document File *</label>
+                        {{ form.file }}
+                        {% if form.file.errors %}<div class="text-danger small mt-1">{{ form.file.errors }}</div>{% endif %}
+                        <div class="form-text text-muted small mt-2">Max file size: 50MB. Supported formats: PDF, DOCX, PPTX, XLSX, Images, Videos, ZIP.</div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4 border-secondary opacity-25">
+
+            <div class="d-flex justify-content-end gap-3">
+                <a href="{% url 'material_manage_list' %}" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
+                <button type="submit" class="btn btn-primary glass-button rounded-pill px-4">
+                    <i class="bi bi-cloud-check me-2"></i> Save Material
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Confirm Delete - EdTech Core{% endblock %}
+
+{% block content %}
+<div class="container py-5 d-flex justify-content-center" data-aos="fade-in">
+    <div class="glass-card p-5 rounded-4 border-0 shadow-lg text-center" style="max-width: 500px; width: 100%;">
+        <div class="mb-4">
+            <div class="rounded-circle d-inline-flex align-items-center justify-content-center bg-danger bg-opacity-10 shadow-sm" style="width: 80px; height: 80px; border: 2px solid rgba(220, 53, 69, 0.3);">
+                <i class="bi bi-exclamation-triangle text-danger fs-1"></i>
+            </div>
+        </div>
+        
+        <h3 class="fw-bold text-white mb-3">Delete Material?</h3>
+        <p class="text-muted mb-4">Are you sure you want to delete the study material <strong class="text-white">"{{ material.title }}"</strong>? This action cannot be undone and will permanently remove the file from the server.</p>
+        
+        <form method="post" class="d-flex gap-3 justify-content-center mt-4">
+            {% csrf_token %}
+            <a href="{% url 'material_manage_list' %}" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
+            <button type="submit" class="btn btn-danger rounded-pill px-4 shadow">
+                <i class="bi bi-trash me-2"></i> Yes, Delete It
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

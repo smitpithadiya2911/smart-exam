@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'leaderboard.apps.LeaderboardConfig',
     'reports.apps.ReportsConfig',
     'api.apps.ApiConfig',
+    'study_materials.apps.StudyMaterialsConfig',
 
     
 ]
@@ -103,6 +104,9 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
+
+# Trigger autoreload for templatetags
+
 
 # Database Configuration: MySQL 8.x (Laragon Defaults) with dynamic fallback
 DATABASE_URL = os.environ.get('DATABASE_URL')
