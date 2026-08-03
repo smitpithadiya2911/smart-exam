@@ -92,14 +92,14 @@
             <a href="{% url 'teacher_list' %}"
               class="nav-link-glass {% if 'teacher' in request.path %}active{% endif %}"><i
                 class="bi bi-person-workspace"></i> Teachers</a>
-            <a href="{% url 'student_list' %}"
-              class="nav-link-glass {% if 'student' in request.path and 'upcoming' not in request.path %}active{% endif %}"><i
-                class="bi bi-people"></i> Students</a>
             {% endif %}
 
             {% if user.role == 'TEACHER' or user.role == 'SUPER_ADMIN' or user.is_superuser %}
             <div class="text-uppercase small cyber-subtitle text-muted px-3 mt-3 mb-1"
-              style="color: rgba(0,245,255,0.7) !important;">Examination</div>
+              style="color: rgba(0,245,255,0.7) !important;">Management & Exams</div>
+            <a href="{% url 'student_list' %}"
+              class="nav-link-glass {% if 'student' in request.path and 'upcoming' not in request.path %}active{% endif %}"><i
+                class="bi bi-people"></i> Manage Students</a>
             <a href="{% url 'question_list' %}"
               class="nav-link-glass {% if 'question' in request.path %}active{% endif %}"><i
                 class="bi bi-patch-question"></i> Question Bank</a>

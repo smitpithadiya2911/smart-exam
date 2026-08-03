@@ -37,7 +37,7 @@ def student_edit_view(request, pk):
     return render(request, 'students/student_edit.html', {'form': form, 'student': profile})
 
 @login_required
-@role_required(['SUPER_ADMIN'])
+@role_required(['SUPER_ADMIN', 'TEACHER'])
 def student_delete_view(request, pk):
     profile = get_object_or_404(StudentProfile, pk=pk)
     user = profile.user

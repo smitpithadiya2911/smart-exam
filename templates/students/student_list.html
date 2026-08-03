@@ -34,7 +34,7 @@
             <td>
               <div class="d-flex gap-2">
                 <a href="{% url 'student_edit' student.id %}" class="btn-action-edit" title="Edit Student"><i class="bi bi-pencil-square"></i> Edit</a>
-                {% if user.role == 'SUPER_ADMIN' or user.is_superuser %}<a href="{% url 'student_delete' student.id %}" class="btn-action-delete" title="Delete Student"><i class="bi bi-trash3"></i> Delete</a>{% endif %}
+                {% if user.role == 'SUPER_ADMIN' or user.role == 'TEACHER' or user.is_superuser %}<a href="{% url 'student_delete' student.id %}" class="btn-action-delete" title="Delete Student"><i class="bi bi-trash3"></i> Delete</a>{% endif %}
               </div>
             </td>
             {% endif %}
