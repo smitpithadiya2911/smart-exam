@@ -24,7 +24,8 @@ SECRET_KEY =  os.environ.get(
     'django-insecure-default-key'
 )
 
-DEBUG = True
+# Disable DEBUG automatically on Vercel for better performance and security
+DEBUG = os.environ.get('VERCEL') != '1'
 
 ALLOWED_HOSTS = ['*']
 

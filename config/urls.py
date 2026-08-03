@@ -16,6 +16,8 @@ admin.site.index_title = "Academic Operations & Database Management Hub"
 urlpatterns = [
     path('favicon.ico', RedirectView.as_view(url='/static/images/favicon.ico', permanent=True)),
     path('admin/', admin.site.urls),
+    path('login/admin/', RedirectView.as_view(url='/admin/', permanent=True)),
+    path('login/admin', RedirectView.as_view(url='/admin/', permanent=True)),
 
     path('accounts/', include('allauth.urls')),
 
