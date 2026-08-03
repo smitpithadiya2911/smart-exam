@@ -169,11 +169,6 @@ def ai_recommendations_view(request):
 @login_required
 def download_timetable_view(request):
     from .services import AIStudyPlannerService
-    data = AIStudyPlannerService.get_planner_data(request.user)
-    if not data['has_attempts']:
-        from django.contrib import messages
-        messages.warning(request, "You must complete at least one exam before downloading your personalized timetable.")
-        return redirect('ai_recommendations')
     return AIStudyPlannerService.generate_timetable_pdf(request.user)
 
 @login_required

@@ -17,8 +17,17 @@ function startTimer() {
   timerInterval = setInterval(() => {
     if (remainingSeconds <= 0) {
       clearInterval(timerInterval);
-      alert("Time is up! Submitting your exam automatically...");
-      document.getElementById('exam-taking-form')?.submit();
+      Swal.fire({
+        title: 'Time is up!',
+        text: 'Submitting your exam automatically...',
+        icon: 'warning',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true
+      }).then(() => {
+        document.getElementById('exam-taking-form')?.submit();
+      });
       return;
     }
 
@@ -33,16 +42,25 @@ function startTimer() {
   }, 1000);
 }
 
+let isSubmitting = false;
+
 function setupAntiCheat(attemptId, maxViolations) {
   // 1. Detect Tab Switch / Window Focus Lost
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-      logViolation(attemptId, 'TAB_SWITCH', 'Switched browser tab or minimized window');
+    if (document.hidden && !isSubmitting) {
+      logViolationBeacon(attemptId, 'TAB_SWITCH', 'Switched browser tab or minimized window');
     }
   });
 
   window.addEventListener('blur', () => {
-    logViolation(attemptId, 'WINDOW_BLUR', 'Lost window focus');
+    if (!isSubmitting) logViolation(attemptId, 'WINDOW_BLUR', 'Lost window focus');
+  });
+
+  // Handle refresh or navigate away
+  window.addEventListener('beforeunload', (e) => {
+    if (!isSubmitting) {
+      logViolationBeacon(attemptId, 'WINDOW_BLUR', 'Navigated away or refreshed page');
+    }
   });
 
   // 2. Disable Right Click, Copy, Cut, Paste, Text Selection
@@ -85,14 +103,24 @@ function setupAntiCheat(attemptId, maxViolations) {
 
   // 4. Detect Fullscreen Exit
   document.addEventListener('fullscreenchange', () => {
-    if (!document.fullscreenElement) {
+    if (!document.fullscreenElement && !isSubmitting) {
       logViolation(attemptId, 'FULLSCREEN_EXIT', 'Exited full screen mode');
-      alert("WARNING: Full screen mode is required during the examination!");
     }
   });
 }
 
+function logViolationBeacon(attemptId, type, details) {
+  const formData = new FormData();
+  formData.append('attempt_id', attemptId);
+  formData.append('violation_type', type);
+  formData.append('details', details);
+  navigator.sendBeacon('/exams/log-violation/', formData);
+  window.location.reload();
+}
+
 function logViolation(attemptId, type, details) {
+  if (isSubmitting) return;
+  isSubmitting = true;
   const formData = new FormData();
   formData.append('attempt_id', attemptId);
   formData.append('violation_type', type);
@@ -103,16 +131,13 @@ function logViolation(attemptId, type, details) {
     headers: { 'X-CSRFToken': getCsrfToken() },
     body: formData
   })
-  .then(res => res.json())
-  .then(data => {
-    if (data.disqualified) {
-      alert("EXAM DISQUALIFIED: You have exceeded the maximum allowed cheating violations.");
-      window.location.reload();
-    } else {
-      showToast(`Violation Warning (${data.violations_count}/${data.max_allowed}): ${type}`, 'bg-danger text-white');
-    }
+  .then(() => {
+    window.location.reload();
   })
-  .catch(err => console.log('Violation logging error:', err));
+  .catch(err => {
+    console.log('Violation logging error:', err);
+    window.location.reload();
+  });
 }
 
 function setupPaletteListeners(attemptId) {
@@ -165,4 +190,46 @@ function showToast(message, bgClass = 'bg-primary text-white') {
   `;
   container.appendChild(toast);
   setTimeout(() => toast.remove(), 4000);
+}
+
+function confirmSubmission() {
+  if (typeof Swal !== 'undefined') {
+    Swal.fire({
+      title: 'Submit Exam?',
+      text: "Are you sure you want to finish and submit your exam now?",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, Submit',
+      cancelButtonText: 'Review Answers',
+      background: '#0f172a',
+      color: '#f8fafc',
+      customClass: {
+        popup: 'border border-secondary border-opacity-25 rounded-4 shadow-lg'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        isSubmitting = true;
+        Swal.fire({
+          title: 'Submitting...',
+          text: 'Please wait while we process your exam.',
+          allowOutsideClick: false,
+          showConfirmButton: false,
+          background: '#0f172a',
+          color: '#f8fafc',
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+        document.getElementById('exam-taking-form')?.submit();
+      }
+    });
+  } else {
+    // Fallback if CDN failed
+    if (confirm("Are you sure you want to finish and submit your exam now?")) {
+      isSubmitting = true;
+      document.getElementById('exam-taking-form')?.submit();
+    }
+  }
 }

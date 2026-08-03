@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static socialaccount %}
+
+{% block title %}Sign Up - EdTech System{% endblock %}
+
+{% block public_content %}
+<div class="position-relative min-vh-100 d-flex align-items-center justify-content-center p-3 overflow-hidden">
+  <div id="hero-3d-canvas"></div>
+  <div class="container position-relative" style="z-index: 10;">
+    <div class="row align-items-center justify-content-center g-4">
+      <div class="col-lg-6 col-md-10 mx-auto" data-aos="fade-up">
+        <div class="glass-card watermark-container shadow-lg p-4 position-relative mx-auto" style="max-width: 520px; border: 1px solid rgba(0, 245, 255, 0.25);">
+          <div class="watermark-text">SIGN UP</div>
+          <div class="text-center mb-4">
+            <i class="bi bi-person-plus-fill fs-1" style="color: #00F5FF;"></i>
+            <h4 class="font-heading mt-2 mb-1">Create an Account</h4>
+            <p class="text-muted small mb-0">Already have an account? <a href="{% url 'account_login' %}" style="color: #3EA6FF;" class="text-decoration-none fw-bold">Sign in</a></p>
+          </div>
+          
+          <form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+            <div class="alert mt-3 py-2 px-3 rounded-3" style="background: rgba(255, 74, 90, 0.15); border: 1px solid rgba(255, 74, 90, 0.3); color: #ff6b7a;">
+              <i class="bi bi-exclamation-triangle me-1"></i>
+              {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                  <small class="d-block">{{ error }}</small>
+                {% endfor %}
+              {% endfor %}
+              {% for error in form.non_field_errors %}
+                  <small class="d-block">{{ error }}</small>
+              {% endfor %}
+            </div>
+            {% endif %}
+
+            {% for field in form %}
+            <div class="mb-3">
+              <label class="form-label font-monospace small mb-1" style="color: #00F5FF;">{{ field.label|upper }}</label>
+              {{ field }}
+              {% if field.help_text %}
+              <small class="form-text text-muted d-block mt-1">{{ field.help_text|safe }}</small>
+              {% endif %}
+            </div>
+            {% endfor %}
+            
+            {% if redirect_field_value %}
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+            {% endif %}
+            
+            <button type="submit" class="btn btn-glass-primary w-100 py-2 fs-6 mt-3" style="background: linear-gradient(135deg, #00F5FF 0%, #7B3FFB 100%); color: #fff; border: none; box-shadow: 0 8px 25px rgba(123, 63, 251, 0.4);">
+              Sign Up
+            </button>
+            
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+    .signup input, .signup select {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #fff;
+        border-radius: 8px;
+        padding: 0.5rem 0.75rem;
+        width: 100%;
+    }
+    .signup input:focus, .signup select:focus {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: #00F5FF;
+        outline: none;
+        box-shadow: 0 0 10px rgba(0, 245, 255, 0.2);
+    }
+
+    .signup ul.errorlist {
+        list-style: none;
+        padding-left: 0;
+        color: #ff6b7a;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+        margin-bottom: 0;
+    }
+</style>
+{% endblock %}

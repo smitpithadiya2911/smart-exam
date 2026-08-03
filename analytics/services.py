@@ -3,20 +3,78 @@ from exams.models import ExamAttempt, Exam
 from results.models import AnswerAttempt
 from questions.models import Question
 from .models import AIStudyRecommendation
+import hashlib
+from io import BytesIO
+from django.http import HttpResponse
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from subjects.models import Subject
+from django.utils import timezone
+import statistics
 
 class AIRecommendationService:
     @staticmethod
     def generate_recommendations_for_student(student_user):
-        """
-        Rule-based AI Learning Recommendation Engine:
-        1. Analyzes student's past AnswerAttempts grouped by topic.
-        2. Identifies weak topics (< 50% accuracy).
-        3. Maps weak areas to suggested review chapters and recommended practice questions.
-        4. Predicts future score improvement trend based on historical trajectory.
-        """
-        # Fetch all answers by this student
         user_answers = AnswerAttempt.objects.filter(attempt__student=student_user).select_related('question', 'question__subject')
+        recent_attempts = ExamAttempt.objects.filter(student=student_user, status=ExamAttempt.Status.COMPLETED).order_by('start_time')
         
+        has_data = recent_attempts.exists()
+        
+        # 1. Dashboard Stats
+        total_exams = recent_attempts.count()
+        scores = [float(a.percentage) for a in recent_attempts]
+        avg_score = round(sum(scores)/len(scores), 1) if scores else 0.0
+        highest_score = round(max(scores), 1) if scores else 0.0
+        lowest_score = round(min(scores), 1) if scores else 0.0
+        
+        # Calculate prep percent
+        preparation_percent = avg_score
+        
+        # Consistency & Improvement
+        improvement_percent = 0.0
+        if len(scores) >= 3:
+            first_three = sum(scores[:3])/3
+            last_three = sum(scores[-3:])/3
+            improvement_percent = round(last_three - first_three, 1)
+        
+        consistency_percent = 100.0
+        if len(scores) >= 2:
+            try:
+                variance = statistics.variance(scores)
+                consistency_percent = max(0.0, min(100.0, 100 - (variance / 10)))
+            except Exception:
+                pass
+        
+        # 2. Predicted Score & Probability
+        trend_label = "Stable"
+        predicted_next = 75.0
+        if len(scores) >= 2:
+            diff = scores[-1] - scores[0]
+            if diff > 5:
+                trend_label = "Upward Trajectory"
+                predicted_next = min(100.0, scores[-1] + 4.0)
+            elif diff < -5:
+                trend_label = "Declining Trend"
+                predicted_next = max(0.0, scores[-1] - 3.0)
+            else:
+                predicted_next = scores[-1]
+        elif len(scores) == 1:
+            predicted_next = scores[0]
+            
+        passing_probability = min(99.0, (predicted_next / 50.0) * 100.0) if predicted_next else 0.0
+        risk_level = "High" if passing_probability < 50 else "Medium" if passing_probability < 75 else "Low"
+        
+        # 3. Confidence & Readiness
+        total_ans = user_answers.count()
+        skipped = user_answers.filter(selected_option__isnull=True, text_response__isnull=True).count()
+        skip_ratio = (skipped / total_ans) if total_ans > 0 else 0
+        confidence_score = max(0.0, 100.0 - (skip_ratio * 100 * 2))  # Penalty for skipping
+        
+        exam_readiness_percent = min(100.0, (preparation_percent * 0.7) + (confidence_score * 0.3))
+        
+        # 4. Topic-wise Analysis & AI Recommendations
         topic_stats = {}
         for ans in user_answers:
             topic = ans.question.topic or "General Fundamentals"
@@ -29,124 +87,128 @@ class AIRecommendationService:
                 topic_stats[key]['correct'] += 1
 
         recommendations = []
+        smart_suggestions = []
+        
+        best_topic = None
+        best_acc = -1
+        worst_topic = None
+        worst_acc = 101
+        
         for (subj_name, topic), data in topic_stats.items():
             if data['total'] > 0:
                 acc = (data['correct'] / data['total']) * 100.0
-                if acc < 50.0:
-                    rec_msg = f"Your accuracy in '{topic}' under {subj_name} is currently {acc:.1f}%. We recommend re-reading {data['chapter'] or 'the core notes'} and attempting 10 practice questions."
-                    
-                    obj, created = AIStudyRecommendation.objects.get_or_create(
-                        student=student_user,
-                        subject_name=subj_name,
-                        weak_topic=topic,
-                        defaults={
-                            'accuracy_percentage': round(acc, 2),
-                            'recommendation_text': rec_msg,
-                            'suggested_chapter': data['chapter']
-                        }
-                    )
-                    if not created:
-                        obj.accuracy_percentage = round(acc, 2)
-                        obj.recommendation_text = rec_msg
-                        obj.save()
-                    recommendations.append(obj)
-
-        # Performance trend prediction
-        recent_attempts = ExamAttempt.objects.filter(student=student_user, status=ExamAttempt.Status.COMPLETED).order_by('start_time')
-        scores = [float(a.percentage) for a in recent_attempts]
-        trend_label = "Stable"
-        predicted_next = 75.0
-        if len(scores) >= 2:
-            diff = scores[-1] - scores[0]
-            if diff > 5:
-                trend_label = "Upward Trajectory (+{:.1f}%)".format(diff)
-                predicted_next = min(100.0, scores[-1] + 4.0)
-            elif diff < -5:
-                trend_label = "Declining Trend ({:.1f}%)".format(diff)
-                predicted_next = max(0.0, scores[-1] - 3.0)
-            else:
-                predicted_next = scores[-1]
-        elif len(scores) == 1:
-            predicted_next = scores[0]
-
-        return {
-            'weak_topic_recs': recommendations,
-            'historical_scores': scores,
-            'trend_label': trend_label,
-            'predicted_next_score': round(predicted_next, 1)
+                
+                if acc > best_acc:
+                    best_acc = acc
+                    best_topic = topic
+                if acc < worst_acc:
+                    worst_acc = acc
+                    worst_topic = topic
+                
+                difficulty = "Hard" if acc < 40 else "Medium" if acc < 70 else "Easy"
+                priority = "High" if acc < 50 else "Medium" if acc < 75 else "Low"
+                hours = 3 if priority == "High" else 2 if priority == "Medium" else 1
+                rec_text = f"Revise {data['chapter'] or 'Core Notes'}"
+                
+                recommendations.append({
+                    'subject_name': subj_name,
+                    'weak_topic': topic,
+                    'accuracy_percentage': round(acc, 1),
+                    'difficulty_level': difficulty,
+                    'confidence_score': round(acc * 0.9, 1),
+                    'improvement_required': f"+{round(100-acc, 1)}%",
+                    'estimated_study_hours': f"{hours} Hrs",
+                    'expected_score_after': f"{round(min(100, acc + 15), 1)}%",
+                    'priority_level': priority,
+                    'ai_recommendation': rec_text
+                })
+        
+        # Generate Smart Suggestions
+        if has_data:
+            if best_topic:
+                smart_suggestions.append(f"You are strong in {best_topic}.")
+            if worst_topic:
+                smart_suggestions.append(f"Your weakest area is {worst_topic}. Spend more time here.")
+            if skip_ratio > 0.2:
+                smart_suggestions.append(f"You skip too many questions. Try attempting easier ones first.")
+            smart_suggestions.append(f"Complete one Mock Test on Saturday.")
+            smart_suggestions.append(f"Estimated improvement after following this plan: +{round(100-predicted_next, 1)*0.2:.1f}%")
+            
+        # Study Ratio
+        remaining = max(0, 100 - preparation_percent)
+        ratio_theory = int(remaining * 0.8)
+        ratio_mcq = int(preparation_percent * 0.5)
+        ratio_rev = int(preparation_percent * 0.2)
+        ratio_mock = int(preparation_percent * 0.3)
+        total_ratio = ratio_theory + ratio_mcq + ratio_rev + ratio_mock
+        if total_ratio == 0: total_ratio = 1
+        
+        study_ratio = {
+            'theory': round(ratio_theory/total_ratio*100),
+            'mcq': round(ratio_mcq/total_ratio*100),
+            'revision': round(ratio_rev/total_ratio*100),
+            'mock': round(ratio_mock/total_ratio*100),
         }
 
+        # Study hours
+        today_hours = 3 if exam_readiness_percent < 50 else 2
+        tomorrow_hours = 2
+        mcq_count = int(120 * (study_ratio['mcq']/100))
 
-import hashlib
-from io import BytesIO
-from django.http import HttpResponse
-from reportlab.lib.pagesizes import letter
-from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from subjects.models import Subject
+        return {
+            'has_data': has_data,
+            'dashboard_stats': {
+                'total_exams': total_exams,
+                'avg_score': avg_score,
+                'highest_score': highest_score,
+                'lowest_score': lowest_score,
+                'study_hours_total': total_exams * 2 + 10,
+                'study_streak': 5
+            },
+            'preparation_percent': round(preparation_percent, 1),
+            'exam_readiness_percent': round(exam_readiness_percent, 1),
+            'confidence_score': round(confidence_score, 1),
+            'passing_probability': round(passing_probability, 1),
+            'risk_level': risk_level,
+            'improvement_percent': improvement_percent,
+            'consistency_percent': round(consistency_percent, 1),
+            'predicted_next_score': round(predicted_next, 1),
+            'trend_label': trend_label,
+            'smart_suggestions': smart_suggestions,
+            'topic_recommendations': sorted(recommendations, key=lambda x: x['accuracy_percentage']),
+            'study_ratio': study_ratio,
+            'study_hours': {
+                'today': today_hours,
+                'tomorrow': tomorrow_hours,
+                'mcq_count': mcq_count
+            }
+        }
+
 
 class AIStudyPlannerService:
     @staticmethod
     def get_planner_data(student_user):
-        # Fetch completed exam attempts for this student
         completed_attempts = ExamAttempt.objects.filter(
             student=student_user,
             status=ExamAttempt.Status.COMPLETED
-        ).select_related('exam', 'exam__subject')
+        ).select_related('exam', 'exam__subject').order_by('-end_time')
 
         has_attempts = completed_attempts.exists()
         
-        # Extract unique subjects from completed attempts
-        subjects = list(set(att.exam.subject for att in completed_attempts))
         try:
             profile = student_user.student_profile
-        except Exception:
-            profile = None
-
-        subject_progress = []
-        subject_weights = {}
-
-        for subject in subjects:
-            attempts = completed_attempts.filter(exam__subject=subject)
-            
-            avg_score = attempts.aggregate(Avg('percentage'))['percentage__avg']
-            avg_score = float(avg_score) if avg_score is not None else 0.0
-                
-            from results.models import AnswerAttempt
-            ans_attempts = AnswerAttempt.objects.filter(
-                attempt__student=student_user,
-                question__subject=subject
-            )
-            total_ans = ans_attempts.count()
-            correct_ans = ans_attempts.filter(is_correct=True).count()
-            accuracy = (correct_ans / total_ans * 100.0) if total_ans > 0 else None
-            
-            progress_val = avg_score
-            
-            if progress_val < 50.0:
-                priority = "Critical Focus (High Effort)"
-                weight = 3.0
-                suggestion = "Focus heavily on weak topics, re-read textbook chapters, and do daily practice questions."
-            elif progress_val < 75.0:
-                priority = "Moderate Focus (Medium Effort)"
-                weight = 2.0
-                suggestion = "Practice intermediate problems and focus on reducing small errors."
+            if profile.course:
+                subjects = list(Subject.objects.filter(course=profile.course))
             else:
-                priority = "Steady Progress (Low Effort)"
-                weight = 1.0
-                suggestion = "Maintain standard practice, do mock tests, and keep formulas/syntax fresh."
-                
-            subject_progress.append({
-                'subject': subject,
-                'avg_score': avg_score,
-                'accuracy': accuracy,
-                'progress_val': round(progress_val, 1),
-                'priority': priority,
-                'suggestion': suggestion
-            })
-            subject_weights[subject.id] = weight
-
+                subjects = list(set(att.exam.subject for att in completed_attempts))
+        except Exception:
+            subjects = list(set(att.exam.subject for att in completed_attempts))
+            
+        if not subjects:
+            subjects = list(Subject.objects.all())
+            
+        subjects.sort(key=lambda s: s.name)  # Sort for consistent order
+        
         days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
         slots = [
             'Morning (09:00 AM - 11:00 AM)',
@@ -154,50 +216,46 @@ class AIStudyPlannerService:
             'Evening (07:00 PM - 09:00 PM)'
         ]
         
-        weighted_pool = []
-        for s_prog in subject_progress:
-            w = int(subject_weights[s_prog['subject'].id])
-            weighted_pool.extend([s_prog['subject']] * w)
-            
-        if not weighted_pool:
-            weighted_pool = subjects
-            
         timetable = {}
+        subject_idx = 0
         
-        if has_attempts:
-            weights_str = "".join([f"{sid}:{w}" for sid, w in sorted(subject_weights.items())])
-            seed_str = f"{student_user.id}:{weights_str}"
-            seed_int = int(hashlib.md5(seed_str.encode('utf-8')).hexdigest(), 16) % 100000
-            idx = seed_int
-        else:
-            idx = 0
-            
+        # Build dynamic all-exams timetable
         for day in days:
             timetable[day] = {}
             for slot in slots:
+                if not subjects:
+                    timetable[day][slot] = "Self Study / Academic Reading"
+                    continue
+                
+                current_subj = subjects[subject_idx % len(subjects)]
+                
+                # Intelligent dynamic routing
                 if day == 'Sunday':
-                    if slot == 'Morning (09:00 AM - 11:00 AM)':
+                    if 'Morning' in slot:
                         timetable[day][slot] = "Weekly Revision of All Subjects"
-                    elif slot == 'Afternoon (02:00 PM - 04:00 PM)':
+                    elif 'Afternoon' in slot:
                         timetable[day][slot] = "Full Syllabus Mock Test / MCQ Practice"
                     else:
                         timetable[day][slot] = "Weekly Study Plan Review & Rest"
+                elif day == 'Saturday':
+                    timetable[day][slot] = f"Mock Test for {current_subj.name}"
+                    subject_idx += 1
                 else:
-                    if weighted_pool:
-                        selected_subj = weighted_pool[idx % len(weighted_pool)]
-                        timetable[day][slot] = f"{selected_subj.name} ({selected_subj.code})"
-                        idx += 1
+                    if 'Morning' in slot:
+                        timetable[day][slot] = f"Theory: {current_subj.name}"
+                    elif 'Afternoon' in slot:
+                        timetable[day][slot] = f"MCQ Practice: {current_subj.name}"
+                        subject_idx += 1
                     else:
-                        timetable[day][slot] = "Self Study / Academic Reading"
+                        timetable[day][slot] = "Revision & Note Making"
                         
         timetable_rows = []
         for slot in slots:
             slot_days = []
             for day in days:
-                activity = timetable[day][slot]
                 slot_days.append({
                     'day': day,
-                    'activity': activity
+                    'activity': timetable[day][slot]
                 })
             timetable_rows.append({
                 'slot_name': slot,
@@ -206,12 +264,11 @@ class AIStudyPlannerService:
 
         return {
             'has_attempts': has_attempts,
-            'subject_progress': subject_progress,
             'timetable': timetable,
             'timetable_rows': timetable_rows,
             'days': days,
             'slots': slots,
-            'profile': profile
+            'latest_exam_name': "All Evaluated Subjects" if has_attempts else "None"
         }
 
     @staticmethod
@@ -235,7 +292,7 @@ class AIStudyPlannerService:
             parent=styles['Heading1'],
             fontName='Helvetica-Bold',
             fontSize=20,
-            textColor=colors.HexColor('#002b49'),
+            textColor=colors.HexColor('#00E5FF'),
             alignment=1,
             spaceAfter=12
         )
@@ -245,97 +302,43 @@ class AIStudyPlannerService:
             parent=styles['Heading2'],
             fontName='Helvetica-Bold',
             fontSize=14,
-            textColor=colors.HexColor('#002b49'),
+            textColor=colors.HexColor('#7B61FF'),
             spaceBefore=12,
             spaceAfter=6
         )
         
-        text_style = ParagraphStyle(
-            'PlannerText',
-            parent=styles['Normal'],
-            fontName='Helvetica',
-            fontSize=10,
-            textColor=colors.HexColor('#333333'),
-            spaceAfter=4
-        )
-        
-        header_text = f"<b>Student:</b> {student_user.get_full_name()} ({student_user.email})<br/>"
-        if data['profile']:
-            header_text += f"<b>Roll Number:</b> {data['profile'].roll_number} | <b>Course:</b> {data['profile'].course.name if data['profile'].course else 'N/A'} | <b>Semester:</b> {data['profile'].semester.number if data['profile'].semester else 'N/A'}"
-        
         story.append(Paragraph("AI PERSONALIZED STUDY PLANNER", title_style))
-        story.append(Paragraph(header_text, text_style))
-        story.append(Spacer(1, 15))
+        story.append(Spacer(1, 10))
         
-        # 1. Subject Progress & Suggestions
-        story.append(Paragraph("Subject Progress & AI Recommendations", section_style))
-        table_data = [["Subject Code & Name", "Average Score", "AI Study Priority & Suggestion"]]
-        for item in data['subject_progress']:
-            sub = item['subject']
-            avg = f"{item['progress_val']}%" if item['avg_score'] is not None or item['accuracy'] is not None else "No Attempts"
-            suggestion_p = f"<b>{item['priority']}</b><br/>{item['suggestion']}"
-            table_data.append([
-                Paragraph(f"<b>{sub.code}</b><br/>{sub.name}", text_style),
-                Paragraph(avg, text_style),
-                Paragraph(suggestion_p, text_style)
-            ])
-            
-        progress_table = Table(table_data, colWidths=[150, 80, 310])
-        progress_table.setStyle(TableStyle([
-            ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#002b49')),
-            ('TEXTCOLOR', (0,0), (-1,0), colors.white),
-            ('ALIGN', (0,0), (-1,-1), 'LEFT'),
-            ('VALIGN', (0,0), (-1,-1), 'TOP'),
-            ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#dddddd')),
-            ('PADDING', (0,0), (-1,-1), 6),
-        ]))
+        table_data = [["Time Slot"] + days]
         
-        # Fix table header text color
-        for i in range(3):
-            table_data[0][i] = Paragraph(f"<font color='white'><b>{table_data[0][i]}</b></font>", text_style)
-            
-        story.append(progress_table)
-        story.append(Spacer(1, 15))
-        
-        # 2. Study Timetable Grid
-        story.append(Paragraph("Weekly Routine Study Timetable", section_style))
-        
-        # Grid format: Row for each day, cols: Day, Morning, Afternoon, Evening
-        grid_data = [["Day", "Morning\n(09:00 - 11:00 AM)", "Afternoon\n(02:00 - 04:00 PM)", "Evening\n(07:00 - 09:00 PM)"]]
-        for day in days:
-            row = [day]
-            for slot in slots:
+        for slot in slots:
+            row = [slot]
+            for day in days:
                 row.append(timetable[day][slot])
-            grid_data.append(row)
+            table_data.append(row)
             
-        # Convert all to Paragraphs for text wrapping
-        formatted_grid = []
-        for r_idx, row in enumerate(grid_data):
-            formatted_row = []
-            for c_idx, cell in enumerate(row):
-                if r_idx == 0:
-                    formatted_row.append(Paragraph(f"<font color='white'><b>{cell}</b></font>", text_style))
-                else:
-                    if c_idx == 0:
-                        formatted_row.append(Paragraph(f"<b>{cell}</b>", text_style))
-                    else:
-                        formatted_row.append(Paragraph(cell, text_style))
-            formatted_grid.append(formatted_row)
-            
-        timetable_table = Table(formatted_grid, colWidths=[80, 153, 153, 154])
-        timetable_table.setStyle(TableStyle([
-            ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#002b49')),
-            ('TEXTCOLOR', (0,0), (-1,0), colors.white),
-            ('ALIGN', (0,0), (-1,-1), 'LEFT'),
-            ('VALIGN', (0,0), (-1,-1), 'TOP'),
-            ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#dddddd')),
-            ('PADDING', (0,0), (-1,-1), 6),
+        t = Table(table_data, colWidths=[100] + [75]*7)
+        t.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#0B1120')),
+            ('TEXTCOLOR', (0,0), (-1,0), colors.HexColor('#00E5FF')),
+            ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+            ('GRID', (0,0), (-1,-1), 1, colors.HexColor('#1A2238')),
+            ('BACKGROUND', (0,1), (0,-1), colors.HexColor('#121826')),
+            ('TEXTCOLOR', (0,1), (-1,-1), colors.HexColor('#ffffff')),
+            ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0,0), (-1,-1), 8),
+            ('WORDWRAP', (0,0), (-1,-1), True),
         ]))
-        story.append(timetable_table)
         
+        story.append(t)
         doc.build(story)
-        buffer.seek(0)
         
-        response = HttpResponse(buffer.read(), content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="AI_Study_Planner_{student_user.id}.pdf"'
+        pdf_value = buffer.getvalue()
+        buffer.close()
+        
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="AI_Study_Planner.pdf"'
+        response.write(pdf_value)
         return response

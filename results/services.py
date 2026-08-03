@@ -19,7 +19,29 @@ class GradingService:
         with negative marking applied correctly, and scales question marks
         proportionally so they sum exactly to the exam's configured total_marks.
         """
+        from decimal import Decimal
+        from exams.models import ExamAttempt
         exam = attempt.exam
+        
+        # Zero Tolerance: If cheating detected, invalidate all answers and force score to 0
+        if attempt.status == ExamAttempt.Status.DISQUALIFIED:
+            for q in exam.questions.all():
+                ans, created = AnswerAttempt.objects.get_or_create(
+                    attempt=attempt,
+                    question=q,
+                    defaults={'selected_option': '', 'text_response': '', 'marks_obtained': Decimal('0.00'), 'is_correct': False}
+                )
+                ans.is_correct = False
+                ans.marks_obtained = Decimal('0.00')
+                ans.save(update_fields=['is_correct', 'marks_obtained'])
+
+            attempt.total_score = Decimal('0.00')
+            attempt.percentage = Decimal('0.00')
+            attempt.is_passed = False
+            attempt.is_evaluated = True
+            attempt.save(update_fields=['total_score', 'percentage', 'is_passed', 'is_evaluated'])
+            return attempt
+
         answers = AnswerAttempt.objects.filter(attempt=attempt).select_related('question')
         
         # Calculate sum of all base question marks in the exam
@@ -29,8 +51,6 @@ class GradingService:
         # Proportional scale factor
         scale_factor = exam_total / base_marks_sum if base_marks_sum > 0.0 else 1.0
         
-        total_score = 0.0
-
         for ans in answers:
             q = ans.question
             # Objective question auto-evaluation
@@ -52,7 +72,11 @@ class GradingService:
                     ans.marks_obtained = 0.0
 
                 ans.save(update_fields=['is_correct', 'marks_obtained'])
-                total_score += float(ans.marks_obtained)
+
+        # Recalculate total_score directly from DB to prevent any floating point accumulation issues or mismatch
+        db_answers = AnswerAttempt.objects.filter(attempt=attempt)
+        total_score_decimal = sum((Decimal(str(a.marks_obtained)) for a in db_answers), Decimal('0.00'))
+        total_score = float(total_score_decimal)
 
         # Cap score at 0 minimum, and max at exam_total
         final_score = min(exam_total, max(0.0, total_score))
@@ -160,11 +184,14 @@ class ResultPDFService:
         exam_total = float(attempt.exam.total_marks) if float(attempt.exam.total_marks) > 0.0 else 100.0
         scale_factor = exam_total / base_marks_sum if base_marks_sum > 0.0 else 1.0
 
+        from django.utils.html import escape
+        
         for i, ans in enumerate(answers, 1):
             scaled_max = round(float(ans.question.marks) * scale_factor, 2)
+            safe_prompt = escape(ans.question.prompt_text[:60]) + "..."
             q_rows.append([
                 str(i),
-                Paragraph(ans.question.prompt_text[:60] + "...", styles['Normal']),
+                Paragraph(safe_prompt, styles['Normal']),
                 ans.selected_option or ans.text_response or "Skipped",
                 "Correct" if ans.is_correct else ("Wrong" if ans.selected_option else "Skipped"),
                 f"{ans.marks_obtained} / {scaled_max}"

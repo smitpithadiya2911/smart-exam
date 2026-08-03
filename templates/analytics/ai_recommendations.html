@@ -1,125 +1,297 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}AI Personalised Learning Recommendations{% endblock %}
+{% block title %}AI Personalised Learning Dashboard{% endblock %}
 
 {% block content %}
-<div class="container-fluid" data-aos="fade-up">
-  <div class="d-flex justify-content-between align-items-center mb-4">
+<style>
+  /* Premium Cyberpunk / Glassmorphic Theme */
+  body {
+    background-color: #0B1120 !important;
+    color: #E2E8F0 !important;
+  }
+  
+  .cyber-title {
+    background: linear-gradient(90deg, #00E5FF 0%, #7B61FF 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(0, 229, 255, 0.3);
+  }
+  
+  .cyber-card {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    overflow: hidden;
+  }
+  
+  .cyber-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(0, 229, 255, 0.3);
+    box-shadow: 0 12px 40px 0 rgba(0, 229, 255, 0.15);
+  }
+  
+  .glow-border {
+    position: relative;
+  }
+  
+  .glow-border::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, #00E5FF, transparent);
+    opacity: 0.5;
+  }
+  
+  .glow-text-primary {
+    color: #00E5FF;
+    text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+  }
+  
+  .glow-text-secondary {
+    color: #7B61FF;
+    text-shadow: 0 0 10px rgba(123, 97, 255, 0.5);
+  }
+  
+  .glow-text-success {
+    color: #00C853;
+    text-shadow: 0 0 10px rgba(0, 200, 83, 0.5);
+  }
+  
+  .glow-text-warning {
+    color: #FFC107;
+    text-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
+  }
+
+  /* Circular Progress */
+  .circular-chart {
+    display: block;
+    margin: 0 auto;
+    max-width: 80%;
+    max-height: 250px;
+  }
+  .circle-bg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.05);
+    stroke-width: 3.8;
+  }
+  .circle {
+    fill: none;
+    stroke-width: 2.8;
+    stroke-linecap: round;
+    animation: progress 1s ease-out forwards;
+  }
+  @keyframes progress {
+    0% { stroke-dasharray: 0 100; }
+  }
+  .percentage {
+    fill: #fff;
+    font-family: 'Inter', sans-serif;
+    font-weight: bold;
+    font-size: 0.5em;
+    text-anchor: middle;
+  }
+
+  .badge-cyber {
+    background: rgba(0, 229, 255, 0.1);
+    border: 1px solid rgba(0, 229, 255, 0.3);
+    color: #00E5FF;
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-weight: 600;
+  }
+
+  .timeline-table {
+    background: transparent;
+    color: #E2E8F0;
+  }
+  .timeline-table th {
+    background: rgba(123, 97, 255, 0.1) !important;
+    color: #7B61FF !important;
+    border-color: rgba(123, 97, 255, 0.2) !important;
+  }
+  .timeline-table td {
+    background: transparent !important;
+    border-color: rgba(255, 255, 255, 0.05) !important;
+  }
+  .timeline-cell {
+    background: rgba(0, 229, 255, 0.05);
+    border: 1px solid rgba(0, 229, 255, 0.1);
+    border-radius: 8px;
+    padding: 10px;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+  }
+  .timeline-cell:hover {
+    background: rgba(0, 229, 255, 0.15);
+    transform: scale(1.05);
+  }
+</style>
+
+<div class="container-fluid py-4" data-aos="fade-up">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-5">
     <div>
-      <h2 class="font-heading fw-bold mb-1"><i class="bi bi-cpu text-primary me-2"></i> AI Personalised Learning Plan</h2>
-      <p class="text-muted mb-0">Heuristic analytics based on your exam submission history and topic accuracy rates.</p>
+      <h1 class="fw-bold mb-1 cyber-title"><i class="bi bi-cpu"></i> AI Personalized Dashboard</h1>
+      <p class="text-muted mb-0">Powered by Neural Analytics Engine v2.0</p>
     </div>
-    <div class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 fs-6">
-      Predicted Next Score: <strong>{{ ai_data.predicted_next_score }}%</strong> ({{ ai_data.trend_label }})
+    <div class="text-end">
+      <div class="badge badge-cyber fs-6 mb-1">
+        <i class="bi bi-graph-up-arrow me-1"></i> Predicted Score: {{ ai_data.predicted_next_score }}%
+      </div>
+      <div class="small text-muted">Risk Level: 
+        <span class="{% if ai_data.risk_level == 'High' %}text-danger{% elif ai_data.risk_level == 'Medium' %}text-warning{% else %}text-success{% endif %}">
+          {{ ai_data.risk_level }}
+        </span>
+      </div>
     </div>
   </div>
 
-  <div class="row g-4">
-    <!-- Weak Topics Section -->
-    <div class="col-lg-7">
-      <div class="glass-card mb-4">
-        <h5 class="font-heading mb-3 text-danger"><i class="bi bi-exclamation-octagon-fill me-2"></i> Identified Weak Focus Topics (< 50% Accuracy)</h5>
-        {% if ai_data.weak_topic_recs %}
-          {% for rec in ai_data.weak_topic_recs %}
-          <div class="p-3 mb-3 rounded-3 bg-danger-subtle border border-danger-subtle">
-            <div class="d-flex justify-content-between align-items-center">
-              <span class="fw-bold text-danger fs-6">{{ rec.weak_topic }}</span>
-              <span class="badge bg-danger">{{ rec.accuracy_percentage }}% Accuracy</span>
-            </div>
-            <div class="text-muted small mt-2">Subject: <strong>{{ rec.subject_name }}</strong> | Suggested Chapter: <strong>{{ rec.suggested_chapter|default:"Core Syllabus" }}</strong></div>
-            <p class="mb-0 mt-2 text-dark">{{ rec.recommendation_text }}</p>
-          </div>
-          {% endfor %}
-        {% else %}
-          <div class="text-center py-5 text-muted">
-            <i class="bi bi-trophy-fill display-4 text-warning mb-2"></i>
-            <h5 class="font-heading text-success">Outstanding Performance!</h5>
-            <p>No weak topics (< 50% accuracy) detected across your exam history.</p>
-          </div>
-        {% endif %}
+  {% if ai_data.has_data %}
+  <!-- Top Stats Row -->
+  <div class="row g-4 mb-5">
+    <div class="col-xl-3 col-lg-6">
+      <div class="cyber-card p-4 glow-border h-100 text-center">
+        <h6 class="text-muted mb-3">Exam Readiness</h6>
+        <svg viewBox="0 0 36 36" class="circular-chart" style="stroke: #00E5FF;">
+          <path class="circle-bg"
+            d="M18 2.0845
+              a 15.9155 15.9155 0 0 1 0 31.831
+              a 15.9155 15.9155 0 0 1 0 -31.831"
+          />
+          <path class="circle"
+            stroke-dasharray="{{ ai_data.exam_readiness_percent }}, 100"
+            d="M18 2.0845
+              a 15.9155 15.9155 0 0 1 0 31.831
+              a 15.9155 15.9155 0 0 1 0 -31.831"
+          />
+          <text x="18" y="20.35" class="percentage">{{ ai_data.exam_readiness_percent }}%</text>
+        </svg>
       </div>
     </div>
-
-    <!-- AI Learning Tips & Strategy -->
-    <div class="col-lg-5">
-      <div class="glass-card mb-4">
-        <h5 class="font-heading mb-3"><i class="bi bi-lightbulb-fill text-warning me-2"></i> Heuristic AI Learning Tips</h5>
-        <div class="list-group list-group-flush bg-transparent">
-          <div class="list-group-item bg-transparent px-0">
-            <div class="fw-semibold text-primary"><i class="bi bi-check2-circle me-1"></i> Active Recall Technique</div>
-            <div class="small text-muted">Test yourself using the Question Bank filters instead of passively re-reading slides.</div>
-          </div>
-          <div class="list-group-item bg-transparent px-0">
-            <div class="fw-semibold text-primary"><i class="bi bi-check2-circle me-1"></i> Negative Marking Prevention</div>
-            <div class="small text-muted">Skip questions you are less than 60% sure about to minimize score penalties.</div>
-          </div>
-          <div class="list-group-item bg-transparent px-0">
-            <div class="fw-semibold text-primary"><i class="bi bi-check2-circle me-1"></i> Time Management Strategy</div>
-            <div class="small text-muted">Spend max 1 minute per 1-mark MCQ, leaving 10 minutes at the end for marked review.</div>
-          </div>
+    
+    <div class="col-xl-3 col-lg-6">
+      <div class="cyber-card p-4 h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="text-muted mb-0">Passing Probability</h6>
+          <i class="bi bi-shield-check fs-4 glow-text-success"></i>
         </div>
+        <h2 class="fw-bold glow-text-success mb-2">{{ ai_data.passing_probability }}%</h2>
+        <div class="progress" style="height: 6px; background: rgba(255,255,255,0.05);">
+          <div class="progress-bar bg-success" style="width: {{ ai_data.passing_probability }}%"></div>
+        </div>
+        <p class="small text-muted mt-3 mb-0">Based on historical trajectory</p>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-lg-6">
+      <div class="cyber-card p-4 h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="text-muted mb-0">Confidence Score</h6>
+          <i class="bi bi-lightning-charge fs-4 glow-text-warning"></i>
+        </div>
+        <h2 class="fw-bold glow-text-warning mb-2">{{ ai_data.confidence_score }}%</h2>
+        <div class="progress" style="height: 6px; background: rgba(255,255,255,0.05);">
+          <div class="progress-bar bg-warning" style="width: {{ ai_data.confidence_score }}%"></div>
+        </div>
+        <p class="small text-muted mt-3 mb-0">Derived from skipping & time taken</p>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-lg-6">
+      <div class="cyber-card p-4 h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="text-muted mb-0">Study Hours Logged</h6>
+          <i class="bi bi-clock-history fs-4 glow-text-secondary"></i>
+        </div>
+        <h2 class="fw-bold glow-text-secondary mb-2">{{ ai_data.dashboard_stats.study_hours_total }} Hrs</h2>
+        <p class="small text-muted mt-3 mb-0">Target for tomorrow: {{ ai_data.study_hours.tomorrow }} Hrs</p>
       </div>
     </div>
   </div>
 
-  {% if planner_data.has_attempts %}
-  <!-- Subject-wise Learning Progress -->
-  <div class="row g-4 mb-4">
-    <div class="col-12">
-      <div class="glass-card">
-        <h5 class="font-heading mb-4 text-white"><i class="bi bi-bar-chart-steps text-info me-2"></i> Subject-wise Learning Progress</h5>
+  <!-- Main AI Grid -->
+  <div class="row g-4 mb-5">
+    
+    <!-- AI Topic Insights -->
+    <div class="col-lg-8">
+      <div class="cyber-card p-4 h-100">
+        <h4 class="fw-bold mb-4 glow-text-primary"><i class="bi bi-bullseye me-2"></i> Topic-wise Deep Insights</h4>
         <div class="row g-3">
-          {% for item in planner_data.subject_progress %}
-            <div class="col-md-6">
-              <div class="p-3 rounded-3 border border-secondary border-opacity-25" style="background: rgba(255, 255, 255, 0.02);">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <span class="fw-bold text-white fs-6">{{ item.subject.name }} ({{ item.subject.code }})</span>
-                  <span class="badge {% if 'Critical' in item.priority %}bg-danger{% elif 'Moderate' in item.priority %}bg-warning text-dark{% else %}bg-success{% endif %}">
-                    {{ item.priority }}
-                  </span>
-                </div>
-                <div class="d-flex justify-content-between align-items-center mb-1 small text-muted">
-                  <span>Average Performance Score:</span>
-                  <span class="fw-bold text-info">{{ item.progress_val }}%</span>
-                </div>
-                <div class="progress mb-3" style="height: 10px; background: rgba(255, 255, 255, 0.05); border-radius: 5px;">
-                  <div class="progress-bar {% if item.progress_val < 50 %}bg-danger{% elif item.progress_val < 75 %}bg-warning{% else %}bg-success{% endif %}" 
-                       role="progressbar" 
-                       style="width: {{ item.progress_val }}%; border-radius: 5px;" 
-                       aria-valuenow="{{ item.progress_val }}" 
-                       aria-valuemin="0" 
-                       aria-valuemax="100">
-                  </div>
-                </div>
-                <div class="text-muted small">
-                  <strong>AI Study Suggestion:</strong> {{ item.suggestion }}
-                </div>
+          {% for rec in ai_data.topic_recommendations %}
+          <div class="col-md-6">
+            <div class="p-3 rounded-4" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="fw-bold text-white mb-0 text-truncate" style="max-width: 70%;">{{ rec.weak_topic }}</h6>
+                <span class="badge {% if rec.priority_level == 'High' %}bg-danger{% elif rec.priority_level == 'Medium' %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                  {{ rec.priority_level }} Priority
+                </span>
+              </div>
+              <div class="d-flex justify-content-between small text-muted mb-2">
+                <span>Accuracy: <strong class="text-white">{{ rec.accuracy_percentage }}%</strong></span>
+                <span>Effort needed: <strong class="text-white">{{ rec.estimated_study_hours }}</strong></span>
+              </div>
+              <div class="progress mb-3" style="height: 4px; background: rgba(255,255,255,0.1);">
+                <div class="progress-bar {% if rec.accuracy_percentage < 50 %}bg-danger{% elif rec.accuracy_percentage < 75 %}bg-warning{% else %}bg-success{% endif %}" 
+                     style="width: {{ rec.accuracy_percentage }}%"></div>
+              </div>
+              <div class="p-2 rounded" style="background: rgba(0,229,255,0.05); border-left: 3px solid #00E5FF;">
+                <small class="text-white"><i class="bi bi-robot text-info me-1"></i> {{ rec.ai_recommendation }}</small>
               </div>
             </div>
-          {% empty %}
-            <div class="col-12 text-center text-muted">No subject progress data available.</div>
+          </div>
           {% endfor %}
         </div>
       </div>
     </div>
+
+    <!-- AI Study Ratio Donut & Suggestions -->
+    <div class="col-lg-4">
+      <div class="cyber-card p-4 h-100">
+        <h4 class="fw-bold mb-4 glow-text-secondary"><i class="bi bi-pie-chart me-2"></i> Ideal Study Ratio</h4>
+        <div class="mb-4" style="position: relative; height: 250px;">
+          <canvas id="studyRatioChart"></canvas>
+        </div>
+        
+        <h5 class="fw-bold mb-3 text-white">Smart Engine Suggestions</h5>
+        <div class="d-flex flex-column gap-2">
+          {% for tip in ai_data.smart_suggestions %}
+          <div class="p-2 rounded d-flex align-items-start" style="background: rgba(255,255,255,0.03);">
+            <i class="bi bi-stars glow-text-primary me-2 mt-1"></i>
+            <span class="small text-muted">{{ tip }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <!-- Weekly Routine Study Timetable -->
+  <!-- Weekly Timetable -->
   <div class="row g-4 mb-4">
     <div class="col-12">
-      <div class="glass-card">
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
-          <h5 class="font-heading text-white mb-0"><i class="bi bi-calendar3 text-primary me-2"></i> Personalized Weekly Routine Study Planner</h5>
-          <a href="{% url 'download_timetable' %}" class="btn btn-glass-primary">
-            <i class="bi bi-download me-1"></i> Download Weekly Schedule (PDF)
+      <div class="cyber-card p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h4 class="fw-bold glow-text-primary mb-0"><i class="bi bi-calendar-range me-2"></i> Adaptive 7-Day Study Planner</h4>
+          <a href="{% url 'download_timetable' %}" class="btn btn-outline-info btn-sm rounded-pill px-3">
+            <i class="bi bi-download me-1"></i> Export PDF
           </a>
         </div>
+        
+        <p class="text-muted small mb-4">Based on your latest exam: <strong class="text-white">{{ planner_data.latest_exam_name }}</strong></p>
+        
         <div class="table-responsive">
-          <table class="table table-glass table-bordered align-middle text-center">
+          <table class="table timeline-table table-bordered align-middle text-center mb-0">
             <thead>
-              <tr class="text-info font-monospace small">
-                <th>Time Slot</th>
+              <tr>
+                <th style="width: 15%;">Time Slot</th>
                 {% for day in planner_data.days %}
                   <th>{{ day }}</th>
                 {% endfor %}
@@ -128,13 +300,10 @@
             <tbody>
               {% for row in planner_data.timetable_rows %}
                 <tr>
-                  <td class="text-primary font-monospace fw-bold text-wrap" style="max-width: 140px;">
-                    <i class="bi bi-clock me-1"></i> {{ row.slot_name }}
-                  </td>
+                  <td class="fw-bold glow-text-secondary border-end border-secondary">{{ row.slot_name }}</td>
                   {% for day_info in row.days %}
                     <td>
-                      <div class="p-2 rounded-2 small text-wrap text-white text-center" 
-                           style="background: rgba(255, 255, 255, 0.03); min-height: 52px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255, 255, 255, 0.05);">
+                      <div class="timeline-cell small fw-semibold text-white shadow-sm">
                         {{ day_info.activity }}
                       </div>
                     </td>
@@ -147,22 +316,74 @@
       </div>
     </div>
   </div>
+
   {% else %}
-  <!-- Empty State / No Exam Attempts Yet -->
-  <div class="row g-4 mb-4">
-    <div class="col-12">
-      <div class="glass-card text-center py-5" style="border: 1px dashed rgba(0, 245, 255, 0.2);">
-        <i class="bi bi-cpu display-1 text-primary mb-3" style="font-size: 5rem; text-shadow: 0 0 20px rgba(0, 245, 255, 0.5); color: #00F5FF !important;"></i>
-        <h3 class="font-heading text-white fw-bold mb-2">AI Personalised Study Planner Readying</h3>
-        <p class="text-muted mx-auto" style="max-width: 500px;">
-          The AI Personalized Study Planner automatically creates dynamic daily routines and effort allocations based on your actual performance in exams. Your custom routine will generate automatically once you complete an exam attempt.
-        </p>
-        <a href="{% url 'student_dashboard' %}" class="btn btn-glass-primary mt-3">
-          <i class="bi bi-play-circle me-1"></i> Go to Dashboard & Take Your First Exam
-        </a>
-      </div>
-    </div>
+  <!-- Empty State -->
+  <div class="cyber-card p-5 text-center my-5">
+    <i class="bi bi-radar display-1 glow-text-primary mb-4" style="opacity: 0.8;"></i>
+    <h2 class="fw-bold text-white mb-3">Awaiting Data...</h2>
+    <p class="text-muted mx-auto" style="max-width: 500px;">
+      The Neural Analytics Engine requires at least one completed exam to generate personalized insights, calculate confidence metrics, and dynamically build your Cyber Study Planner.
+    </p>
+    <a href="{% url 'student_dashboard' %}" class="btn btn-info rounded-pill px-4 py-2 mt-3 fw-bold shadow">
+      Start Your First Exam
+    </a>
   </div>
   {% endif %}
+
 </div>
+
+<!-- Chart.js Init -->
+{% if ai_data.has_data %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const ctx = document.getElementById('studyRatioChart').getContext('2d');
+  
+  // Data from Django Context
+  const ratioTheory = {{ ai_data.study_ratio.theory }};
+  const ratioMCQ = {{ ai_data.study_ratio.mcq }};
+  const ratioRev = {{ ai_data.study_ratio.revision }};
+  const ratioMock = {{ ai_data.study_ratio.mock }};
+  
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Theory', 'MCQ Practice', 'Revision', 'Mock Tests'],
+      datasets: [{
+        data: [ratioTheory, ratioMCQ, ratioRev, ratioMock],
+        backgroundColor: [
+          '#7B61FF',
+          '#00E5FF',
+          '#FFC107',
+          '#00C853'
+        ],
+        borderWidth: 0,
+        hoverOffset: 10
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '75%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: '#E2E8F0', font: { family: 'Inter', size: 11 }, padding: 15 }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(15, 23, 42, 0.9)',
+          titleColor: '#00E5FF',
+          bodyColor: '#fff',
+          borderColor: 'rgba(0, 229, 255, 0.3)',
+          borderWidth: 1,
+          padding: 10
+        }
+      }
+    }
+  });
+});
+</script>
+{% endif %}
+
 {% endblock %}

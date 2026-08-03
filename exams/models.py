@@ -93,6 +93,10 @@ class ExamAttempt(models.Model):
     
     violations_count = models.PositiveIntegerField(default=0)
     is_evaluated = models.BooleanField(default=False)
+    
+    cheating_detected = models.BooleanField(default=False)
+    auto_submitted = models.BooleanField(default=False)
+    failure_reason = models.TextField(blank=True, null=True)
 
     # Order of question IDs served to this student (for shuffle consistency)
     question_order = models.JSONField(default=list, blank=True)

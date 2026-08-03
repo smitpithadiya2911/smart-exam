@@ -9,9 +9,10 @@ class ExamAdmin(admin.ModelAdmin):
 
 @admin.register(ExamAttempt)
 class ExamAttemptAdmin(admin.ModelAdmin):
-    list_display = ('student', 'exam', 'status', 'total_score', 'percentage', 'violations_count', 'start_time')
-    list_filter = ('status', 'is_passed')
+    list_display = ('student', 'exam', 'status', 'total_score', 'cheating_detected', 'auto_submitted', 'start_time')
+    list_filter = ('status', 'is_passed', 'cheating_detected', 'auto_submitted')
     search_fields = ('student__email', 'exam__title')
+    readonly_fields = ('cheating_detected', 'auto_submitted', 'failure_reason')
 
 @admin.register(AttemptViolation)
 class AttemptViolationAdmin(admin.ModelAdmin):

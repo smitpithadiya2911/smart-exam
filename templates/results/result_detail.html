@@ -39,9 +39,33 @@
 <div class="container" id="scorecard-capture-area" data-aos="fade-up" style="max-width: 950px;">
   <!-- Header Card -->
   <div class="glass-card mb-4 text-center p-4">
-    <div class="badge {% if attempt.is_passed %}bg-success-subtle text-success{% else %}bg-danger-subtle text-danger{% endif %} fs-6 mb-3 px-3 py-2">
-      {% if attempt.is_passed %}<i class="bi bi-check-circle-fill me-1"></i> EXAMINATION QUALIFIED (PASSED){% else %}<i class="bi bi-x-circle-fill me-1"></i> EXAMINATION FAILED{% endif %}
-    </div>
+    {% if attempt.cheating_detected %}
+      <div class="mb-4 text-start animate__animated animate__shakeX rounded-4" style="background: linear-gradient(135deg, rgba(220,38,38,0.15) 0%, rgba(153,27,27,0.4) 100%); border: 2px solid rgba(239,68,68,0.6); box-shadow: 0 8px 32px rgba(220,38,38,0.3); overflow: hidden; position: relative; padding: 2.5rem; backdrop-filter: blur(10px);">
+        <!-- Decorative background icon -->
+        <div style="position: absolute; top: -20px; right: -20px; opacity: 0.08; font-size: 14rem; color: #f87171; line-height: 1; transform: rotate(-15deg);">
+          <i class="bi bi-shield-x"></i>
+        </div>
+        
+        <div style="position: relative; z-index: 2;">
+          <h3 class="fw-black mb-3 d-flex align-items-center" style="color: #fca5a5; letter-spacing: 1px; text-shadow: 0 2px 10px rgba(220,38,38,0.5);">
+            <i class="bi bi-exclamation-octagon-fill me-3 fs-2 text-danger"></i> EXAM TERMINATED
+          </h3>
+          <p class="mb-2 fs-5 fw-semibold text-white">You have violated the examination rules by leaving the live exam window or attempting to use external resources during the examination.</p>
+          <p class="mb-4" style="color: #fca5a5;">According to the examination policy, your exam has been automatically terminated.</p>
+          
+          <div class="d-inline-flex align-items-center px-4 py-2 rounded-3 text-white fw-bold fs-4 border border-danger border-opacity-75" style="background: linear-gradient(to right, #dc2626, #991b1b); box-shadow: 0 4px 15px rgba(220,38,38,0.4); letter-spacing: 2px;">
+            RESULT: FAILED
+          </div>
+        </div>
+      </div>
+      <div class="badge bg-danger-subtle text-danger fs-6 mb-3 px-3 py-2">
+        <i class="bi bi-shield-x me-1"></i> CHEATING DETECTED - FAILED
+      </div>
+    {% else %}
+      <div class="badge {% if attempt.is_passed %}bg-success-subtle text-success{% else %}bg-danger-subtle text-danger{% endif %} fs-6 mb-3 px-3 py-2">
+        {% if attempt.is_passed %}<i class="bi bi-check-circle-fill me-1"></i> EXAMINATION QUALIFIED (PASSED){% else %}<i class="bi bi-x-circle-fill me-1"></i> EXAMINATION FAILED{% endif %}
+      </div>
+    {% endif %}
     <h2 class="font-heading fw-bold text-white mb-1">{{ exam.title }}</h2>
     <div class="mb-3" style="color: #CBD5E1 !important;"><i class="bi bi-book me-1 text-info"></i>{{ exam.subject.code }} - {{ exam.subject.name }}</div>
 
@@ -145,7 +169,9 @@
             <td><span class="badge bg-secondary-subtle text-secondary font-monospace">{{ forloop.counter }}</span></td>
             <td class="small fw-bold text-white text-wrap" style="max-width: 350px;">{{ ans.question.prompt_text|truncatechars:85 }}</td>
             <td>
-              {% if ans.is_correct %}
+              {% if attempt.cheating_detected %}
+                <code class="code-rose">Invalidated</code>
+              {% elif ans.is_correct %}
                 <code class="code-emerald">{{ ans.selected_option|default:ans.text_response|default:"Skipped" }}</code>
               {% elif ans.selected_option or ans.text_response %}
                 <code class="code-rose">{{ ans.selected_option|default:ans.text_response }}</code>
@@ -154,7 +180,9 @@
               {% endif %}
             </td>
             <td>
-              {% if ans.is_correct %}
+              {% if attempt.cheating_detected %}
+                <span class="badge bg-danger-subtle text-danger"><i class="bi bi-x-lg me-1"></i> Wrong (0.00)</span>
+              {% elif ans.is_correct %}
                 <span class="badge bg-success-subtle text-success"><i class="bi bi-check-lg me-1"></i> Correct</span>
               {% elif ans.selected_option or ans.text_response %}
                 <span class="badge bg-danger-subtle text-danger"><i class="bi bi-x-lg me-1"></i> Wrong (-{{ exam.negative_marking }})</span>

@@ -60,22 +60,21 @@ class ExamService:
 
     @staticmethod
     def log_violation(attempt, violation_type, details=""):
-        """Logs anti-cheating violation and auto-submits if threshold breached."""
+        """Logs anti-cheating violation and instantly disqualifies the student."""
         AttemptViolation.objects.create(
             attempt=attempt,
             violation_type=violation_type,
             details=details
         )
         attempt.violations_count += 1
-        attempt.save(update_fields=['violations_count'])
-
-        if attempt.violations_count >= attempt.exam.max_violations:
-            attempt.status = ExamAttempt.Status.DISQUALIFIED
-            attempt.end_time = timezone.now()
-            attempt.save(update_fields=['status', 'end_time'])
-            
-            # Auto-evaluate saved answers
-            from results.services import GradingService
-            GradingService.evaluate_attempt(attempt)
-            return True # Disqualified & auto-submitted
-        return False
+        attempt.cheating_detected = True
+        attempt.auto_submitted = True
+        attempt.failure_reason = "Student violated examination rules by leaving the exam window or using external resources."
+        attempt.status = ExamAttempt.Status.DISQUALIFIED
+        attempt.end_time = timezone.now()
+        attempt.save(update_fields=['violations_count', 'cheating_detected', 'auto_submitted', 'failure_reason', 'status', 'end_time'])
+        
+        # Auto-evaluate saved answers (will immediately invalidate them in GradingService)
+        from results.services import GradingService
+        GradingService.evaluate_attempt(attempt)
+        return True # Instantly Disqualified
