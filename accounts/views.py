@@ -13,7 +13,7 @@ from .permissions import role_required, IsSuperAdmin
 import json
 import random
 from django.conf import settings
-
+from django.db import transaction
 
 def landing_view(request):
     if request.user.is_authenticated:
@@ -133,23 +133,29 @@ def register_student_view(request):
                 
             with transaction.atomic():
                 user = User.objects.create_user(
-                    username=email,
                     email=email,
                     password=form.cleaned_data['password'],
                     first_name=form.cleaned_data['first_name'],
                     last_name=form.cleaned_data['last_name'],
                     phone_number=phone_number,
-                    role='STUDENT',
-                    email_verified=True,
-                    phone_verified=True
+                    role='STUDENT'
                 )
                 
                 # Create student profile
-                Student.objects.create(
+                from students.models import StudentProfile
+                import uuid
+                roll_num = f"STU-{uuid.uuid4().hex[:8].upper()}"
+                
+                dept_id = form.cleaned_data.get('department_id') or None
+                course_id = form.cleaned_data.get('course_id') or None
+                sem_id = form.cleaned_data.get('semester_id') or None
+
+                StudentProfile.objects.create(
                     user=user,
-                    department_id=form.cleaned_data.get('department_id'),
-                    course_id=form.cleaned_data.get('course_id'),
-                    semester_id=form.cleaned_data.get('semester_id'),
+                    roll_number=roll_num,
+                    department_id=dept_id,
+                    course_id=course_id,
+                    semester_id=sem_id,
                 )
 
 

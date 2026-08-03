@@ -9,8 +9,8 @@
       <p class="text-muted mb-0">Multi-type question bank with Excel import/export and random question sampling.</p>
     </div>
     <div class="d-flex gap-2">
-      <a href="{% url 'question_export' %}" class="btn btn-action-edit"><i class="bi bi-file-earmark-excel me-1"></i> Export Excel</a>
-      <a href="{% url 'question_import' %}" class="btn btn-action-view"><i class="bi bi-file-earmark-arrow-up me-1"></i> Import Excel</a>
+      <a href="{% url 'question_import' %}" class="btn btn-action-view"><i class="bi bi-upload me-1"></i> Import</a>
+      <a href="{% url 'question_export' %}" class="btn btn-action-edit"><i class="bi bi-download me-1"></i> Export</a>
       <a href="{% url 'question_create' %}" class="btn btn-glass-primary"><i class="bi bi-plus-lg me-1"></i> Add Question</a>
     </div>
   </div>

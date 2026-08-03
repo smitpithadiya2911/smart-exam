@@ -14,7 +14,7 @@ class NotificationService:
 
     @staticmethod
     def broadcast_announcement(title, message, sender_user):
-        users = User.objects.filter(is_active=True).exclude(id=sender_user.id)
+        users = User.objects.filter(is_active=True)
         notifications = [
             Notification(
                 recipient=u,
