@@ -13,7 +13,7 @@ from .models import AnswerAttempt
 
 class GradingService:
     @staticmethod
-    def evaluate_attempt(attempt):
+    def evaluate_attempt(attempt, request=None):
         """
         Auto-evaluates objective questions (MCQ, True/False, Fill in Blank)
         with negative marking applied correctly, and scales question marks
@@ -91,7 +91,7 @@ class GradingService:
 
         # Auto-generate QR Certificate if passed!
         if attempt.is_passed:
-            CertificateService.generate_certificate(attempt)
+            CertificateService.generate_certificate(attempt, request=request)
 
         return attempt
 

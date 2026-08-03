@@ -18,7 +18,7 @@ class AIRecommendationService:
     @staticmethod
     def generate_recommendations_for_student(student_user):
         user_answers = AnswerAttempt.objects.filter(attempt__student=student_user).select_related('question', 'question__subject')
-        recent_attempts = ExamAttempt.objects.filter(student=student_user, status=ExamAttempt.Status.COMPLETED).order_by('start_time')
+        recent_attempts = ExamAttempt.objects.filter(student=student_user).exclude(status=ExamAttempt.Status.IN_PROGRESS).order_by('start_time')
         
         has_data = recent_attempts.exists()
         
@@ -189,9 +189,8 @@ class AIStudyPlannerService:
     @staticmethod
     def get_planner_data(student_user):
         completed_attempts = ExamAttempt.objects.filter(
-            student=student_user,
-            status=ExamAttempt.Status.COMPLETED
-        ).select_related('exam', 'exam__subject').order_by('-end_time')
+            student=student_user
+        ).exclude(status=ExamAttempt.Status.IN_PROGRESS).select_related('exam', 'exam__subject').order_by('-end_time')
 
         has_attempts = completed_attempts.exists()
         

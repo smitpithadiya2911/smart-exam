@@ -126,7 +126,7 @@ def student_dashboard_view(request):
 
     user = request.user
     attempts = ExamAttempt.objects.filter(student=user)
-    completed_attempts = attempts.filter(status=ExamAttempt.Status.COMPLETED)
+    completed_attempts = attempts.exclude(status=ExamAttempt.Status.IN_PROGRESS)
 
     total_completed = completed_attempts.count()
     avg_score = completed_attempts.aggregate(Avg('percentage'))['percentage__avg'] or 0.0
@@ -177,7 +177,7 @@ def chart_data_api(request):
     chart_type = request.GET.get('type', 'performance')
 
     if chart_type == 'performance':
-        attempts = ExamAttempt.objects.filter(student=request.user, status=ExamAttempt.Status.COMPLETED).order_by('start_time')[:10]
+        attempts = ExamAttempt.objects.filter(student=request.user).exclude(status=ExamAttempt.Status.IN_PROGRESS).order_by('start_time')[:10]
         labels = [a.exam.title[:15] for a in attempts]
         data = [float(a.percentage) for a in attempts]
         return JsonResponse({'labels': labels, 'data': data})

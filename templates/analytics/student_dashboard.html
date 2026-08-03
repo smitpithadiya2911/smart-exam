@@ -61,11 +61,11 @@
           <h5 class="font-heading mb-0 text-primary"><i class="bi bi-robot me-2"></i> AI Learning Plan</h5>
           <a href="{% url 'ai_recommendations' %}" class="small text-decoration-none text-primary">Details &rarr;</a>
         </div>
-        {% if ai_insights.weak_topic_recs %}
-          {% for rec in ai_insights.weak_topic_recs|slice:":2" %}
-          <div class="p-3 mb-2 rounded-3 bg-danger-subtle border border-danger-subtle">
-            <div class="fw-semibold text-danger"><i class="bi bi-exclamation-triangle me-1"></i> Weak Topic: {{ rec.weak_topic }}</div>
-            <div class="small text-muted mt-1">{{ rec.recommendation_text }}</div>
+        {% if ai_insights.topic_recommendations %}
+          {% for rec in ai_insights.topic_recommendations|slice:":2" %}
+          <div class="p-3 mb-3 rounded-3" style="background: rgba(255, 0, 85, 0.05); border: 1px solid rgba(255, 0, 85, 0.2); box-shadow: 0 0 10px rgba(255, 0, 85, 0.05);">
+            <div class="fw-semibold" style="color: var(--color-danger); letter-spacing: 0.5px;"><i class="bi bi-exclamation-triangle me-1"></i> Weak Topic: {{ rec.weak_topic }}</div>
+            <div class="small mt-2" style="color: var(--text-muted);">{{ rec.ai_recommendation }}</div>
           </div>
           {% endfor %}
         {% else %}

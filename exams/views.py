@@ -131,7 +131,7 @@ def start_exam_view(request, attempt_id):
             attempt.end_time = timezone.now()
             attempt.save(update_fields=['status', 'end_time'])
             from results.services import GradingService
-            GradingService.evaluate_attempt(attempt)
+            GradingService.evaluate_attempt(attempt, request=request)
         return redirect('result_detail', attempt_id=attempt.id)
 
     # Fetch ordered questions
@@ -211,7 +211,7 @@ def submit_exam_view(request, attempt_id):
         attempt.save(update_fields=['status', 'end_time'])
 
         from results.services import GradingService
-        GradingService.evaluate_attempt(attempt)
+        GradingService.evaluate_attempt(attempt, request=request)
         messages.success(request, "Exam submitted successfully!")
 
     return redirect('result_detail', attempt_id=attempt.id)
