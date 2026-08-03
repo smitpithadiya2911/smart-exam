@@ -374,8 +374,3 @@ document.addEventListener('DOMContentLoaded', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
 });
-
-
-
-
-
