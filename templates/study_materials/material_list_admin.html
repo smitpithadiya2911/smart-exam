@@ -53,7 +53,7 @@
                                 </div>
                                 <div>
                                     <h6 class="mb-0 fw-bold text-white">{{ material.title }}</h6>
-                                    <small class="text-muted">Uploaded {{ material.upload_date|timesince }} ago by {{ material.uploaded_by.get_full_name|default:material.uploaded_by.username }}</small>
+                                    <small class="text-muted">Uploaded {{ material.upload_date|timesince }} ago by {{ material.uploaded_by.get_full_name|default:material.uploaded_by.email }}</small>
                                 </div>
                             </div>
                         </td>
